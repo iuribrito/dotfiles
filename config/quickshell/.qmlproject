@@ -1,0 +1,5 @@
+{
+    "mainFile": "shell.qml",
+    "importPaths": [ "." ],
+    "qt6": true
+}
