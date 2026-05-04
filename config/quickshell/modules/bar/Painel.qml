@@ -1,6 +1,8 @@
 import Quickshell
 import QtQuick
+import QtQuick.Layouts
 import Quickshell.Services.SystemTray as SystemTrayService
+import "../quicksettings" as QS
 
 PanelWindow {
     id: barRoot
@@ -15,7 +17,7 @@ PanelWindow {
         right: true
     }
     implicitHeight: 35
-    color: "#1a1b26"
+    color: "#1e1e2e"
 
     Workspaces {}
 
@@ -23,25 +25,34 @@ PanelWindow {
         anchors.centerIn: parent
     }
 
-    Row {
+    RowLayout {
         anchors.right: parent.right
         anchors.rightMargin: 10
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
         spacing: 15
 
-        SystemMonitor {}
-
-        SystemTray {
-            // Opcional: só mostra se tiver itens para não deixar buraco
-            visible: SystemTrayService.items.count > 0
-            parentWindow: barRoot
+        SystemMonitor {
+            Layout.alignment: Qt.AlignVCenter
         }
 
-        // Chamando o novo módulo de bateria
-        Battery {}
+        SystemTray {
+            visible: SystemTrayService.items.count > 0
+            parentWindow: barRoot
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        QS.QuickSettingsIcons {
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        Battery {
+            Layout.alignment: Qt.AlignVCenter
+        }
 
         PowerButton {
             onOpenMenu: barRoot.togglePowerMenu()
+            Layout.alignment: Qt.AlignVCenter
         }
     }
 }

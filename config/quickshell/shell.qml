@@ -7,6 +7,7 @@ import Quickshell.Services.Notifications // 1. ADICIONE ESTE IMPORT AQUI NO TOPO
 import "modules/bar" as Bar
 import "modules/notifications" as Notify // Importa a pasta nova
 import "modules/powermenu" as Power // Importando a nova pasta
+import "modules/quicksettings" as QS
 
 ShellRoot {
     id: root
@@ -51,6 +52,13 @@ ShellRoot {
 
         Bar.Painel {
             onTogglePowerMenu: root.isPowerMenuOpen = !root.isPowerMenuOpen
+        }
+    }
+
+    Variants {
+        model: Quickshell.screens
+        delegate: QS.QuickSettingsPanel {
+            modelData: modelData
         }
     }
 

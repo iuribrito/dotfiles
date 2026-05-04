@@ -1,0 +1,3 @@
+singleton QuickSettingsService 1.0 QuickSettingsService.qml
+QuickSettingsIcons 1.0 QuickSettingsIcons.qml
+QuickSettingsPanel 1.0 QuickSettingsPanel.qml
