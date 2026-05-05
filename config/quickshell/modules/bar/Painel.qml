@@ -1,7 +1,7 @@
 import Quickshell
 import QtQuick
 import QtQuick.Layouts
-import Quickshell.Services.SystemTray as SystemTrayService
+import Quickshell.Services.SystemTray
 import "../quicksettings" as QS
 
 PanelWindow {
@@ -36,8 +36,9 @@ PanelWindow {
             Layout.alignment: Qt.AlignVCenter
         }
 
-        SystemTray {
-            visible: SystemTrayService.items.count > 0
+        Tray {
+            // Verificamos a contagem real de itens usando .values.length
+            visible: SystemTray.items.values.length > 0
             parentWindow: barRoot
             Layout.alignment: Qt.AlignVCenter
         }

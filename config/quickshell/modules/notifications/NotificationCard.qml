@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Widgets
 import Quickshell.Services.Notifications
 import "."
 
@@ -36,7 +37,17 @@ Rectangle {
                 id: appIcon
                 anchors.fill: parent
                 anchors.margins: 4
-                source: root.notification.appIcon || root.notification.image || ""
+                source: {
+                    if (root.notification.image) return root.notification.image;
+                    if (root.notification.appIcon) {
+                        if (root.notification.appIcon.startsWith("/") || root.notification.appIcon.startsWith("file://")) {
+                            return root.notification.appIcon;
+                        }
+                        // Tenta carregar do tema de ícones (fallback básico)
+                        return "image://icon/" + root.notification.appIcon;
+                    }
+                    return "";
+                }
                 fillMode: Image.PreserveAspectFit
             }
         }

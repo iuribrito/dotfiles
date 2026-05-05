@@ -16,8 +16,8 @@ PanelWindow {
         right: true
     }
 
-    width: 320
-    height: content.height + 20
+    implicitWidth: 320
+    implicitHeight: content.height + 20
     color: "transparent"
 
     Column {
