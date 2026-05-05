@@ -44,8 +44,8 @@ Row {
                     anchor {
                         window: trayRoot.parentWindow
                         item: trayIcon
-                        edges: Quickshell.Top
-                        gravity: Quickshell.Top
+                        edges: Edges.Top
+                        gravity: Edges.Top
                     }
                     
                     Component.onCompleted: {

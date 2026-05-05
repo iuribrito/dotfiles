@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../theme"
 
 PanelWindow {
     id: pmRoot
@@ -40,7 +41,7 @@ PanelWindow {
         radius: 20
         
         // Cor de fundo levemente rosada/clara igual ao do seu print
-        color: "#f5eceb" 
+        color: Theme.bgLight 
 
         anchors.verticalCenter: parent.verticalCenter
         
@@ -98,10 +99,10 @@ PanelWindow {
             // --- SEUS BOTÕES NA ORDEM DO PRINT ---
             
             // Logout (Seta saindo)
-            MenuBtn { iconTxt: "󰍃"; cmd: "hyprctl dispatch exit"; hoverColor: "#f7768e" }
+            MenuBtn { iconTxt: "󰍃"; cmd: "hyprctl dispatch exit"; hoverColor: Theme.redTokyo }
             
             // Power (Desligar)
-            MenuBtn { iconTxt: ""; cmd: "systemctl poweroff"; hoverColor: "#f7768e" }
+            MenuBtn { iconTxt: ""; cmd: "systemctl poweroff"; hoverColor: Theme.redTokyo }
             
             // A PERSONAGEM CHIBI DO MEIO
             // Se você tiver a imagem, coloque o caminho na propriedade 'source'
@@ -117,10 +118,10 @@ PanelWindow {
             }
 
             // Suspender (Seta para baixo no print, ou pode usar a lua "󰤄")
-            MenuBtn { iconTxt: "󰇄"; cmd: "systemctl suspend"; hoverColor: "#e0af68" }
+            MenuBtn { iconTxt: "󰇄"; cmd: "systemctl suspend"; hoverColor: Theme.orangeAlt }
             
             // Reiniciar (Círculo girando)
-            MenuBtn { iconTxt: "󰜉"; cmd: "systemctl reboot"; hoverColor: "#7aa2f7" }
+            MenuBtn { iconTxt: "󰜉"; cmd: "systemctl reboot"; hoverColor: Theme.blueTokyo }
         }
     }
 }

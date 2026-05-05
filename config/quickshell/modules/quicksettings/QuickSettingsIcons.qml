@@ -2,12 +2,18 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import "."
+import "../theme"
 
-MouseArea {
+Item {
     id: root
     implicitWidth: layout.width + 10
     implicitHeight: layout.height
-    onClicked: QuickSettingsService.panelOpen = !QuickSettingsService.panelOpen
+
+    MouseArea {
+        anchors.fill: parent
+        cursorShape: Qt.PointingHandCursor
+        onClicked: QuickSettingsService.panelOpen = !QuickSettingsService.panelOpen
+    }
 
     RowLayout {
         id: layout
@@ -17,28 +23,28 @@ MouseArea {
         // WiFi
         Text {
             text: QuickSettingsService.wifiEnabled ? "󰖩" : "󰖪"
-            color: "#cba6f7"
+            color: Theme.primary
             font.pixelSize: 14
         }
 
         // Bluetooth
         Text {
             text: QuickSettingsService.bluetoothEnabled ? "󰂯" : "󰂲"
-            color: "#89b4fa"
+            color: Theme.blue
             font.pixelSize: 14
         }
 
         // Volume
         Text {
             text: QuickSettingsService.muted ? "󰝟" : (QuickSettingsService.volume > 0.5 ? "󰕾" : "󰖀")
-            color: "#f9e2af"
+            color: Theme.yellow
             font.pixelSize: 14
         }
 
         // Brilho
         Text {
             text: "󰃠"
-            color: "#fab387"
+            color: Theme.orange
             font.pixelSize: 14
         }
     }

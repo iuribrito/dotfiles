@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
+import "../theme"
 
 PopupWindow {
     id: root
@@ -23,9 +24,9 @@ PopupWindow {
     Rectangle {
         id: bg
         anchors.fill: parent
-        color: "#1e1e2e"
+        color: Theme.bgMain
         radius: 8
-        border.color: "#313244"
+        border.color: Theme.bgSurface
         border.width: 1
         
         ColumnLayout {
@@ -47,7 +48,7 @@ PopupWindow {
                     required property QsMenuEntry modelData
                     Layout.fillWidth: true
                     implicitHeight: modelData.isSeparator ? 9 : 30
-                    color: mouseArea.containsMouse ? "#313244" : "transparent"
+                    color: mouseArea.containsMouse ? Theme.bgSurface : "transparent"
                     radius: 4
                     
                     Rectangle {
@@ -55,7 +56,7 @@ PopupWindow {
                         anchors.centerIn: parent
                         width: parent.width - 8
                         height: 1
-                        color: "#45475a"
+                        color: Theme.bgHover
                     }
                     
                     RowLayout {
@@ -74,7 +75,7 @@ PopupWindow {
                         
                         Text {
                             text: modelData.text
-                            color: "#cdd6f4"
+                            color: Theme.textMain
                             font.pixelSize: 12
                             Layout.fillWidth: true
                         }
@@ -82,7 +83,7 @@ PopupWindow {
                         Text {
                             visible: modelData.hasChildren
                             text: "󰅂"
-                            color: "#6c7086"
+                            color: Theme.textMuted
                             font.pixelSize: 12
                         }
                     }

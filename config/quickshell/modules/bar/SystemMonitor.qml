@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../theme"
 
 Item {
     id: sysMonitor
@@ -65,7 +66,7 @@ Item {
 
             Text {
                 text: ""
-                color: "#7aa2f7"
+                color: Theme.blueTokyo
                 font.pixelSize: 16
                 anchors.verticalCenter: parent.verticalCenter
                 font.family: "JetBrainsMono Nerd Font"
@@ -74,7 +75,7 @@ Item {
             // O Fundo Cinza APENAS para o gráfico
             Rectangle {
                 anchors.verticalCenter: parent.verticalCenter
-                color: "#24283b" // Fundo cinza escuro/azulado
+                color: Theme.bgDark // Fundo cinza escuro/azulado
                 radius: 4 // Arredondamento suave da caixinha
 
                 // O tamanho da caixinha abraça o gráfico dando uma pequena margem (4px de cada lado)
@@ -96,7 +97,7 @@ Item {
                                 anchors.bottom: parent.bottom
                                 width: parent.width
                                 height: Math.max(2, (modelData / 100.0) * parent.height)
-                                color: "#7aa2f7"
+                                color: Theme.blueTokyo
                                 radius: 2
 
                                 Behavior on height {
@@ -113,7 +114,7 @@ Item {
             
             Text {
                 text: sysMonitor.cpuUsage
-                color: "#7aa2f7"
+                color: Theme.blueTokyo
                 font.pixelSize: 13
                 font.bold: true
                 horizontalAlignment: Text.AlignLeft
@@ -128,7 +129,7 @@ Item {
 
             Text {
                 text: ""
-                color: "#9ece6a"
+                color: Theme.green
                 font.pixelSize: 16
                 anchors.verticalCenter: parent.verticalCenter
                 font.family: "JetBrainsMono Nerd Font"
@@ -139,7 +140,7 @@ Item {
                 width: 50 // Largura total da barra de progresso
                 height: 24 // Fica mais fina e elegante
                 radius: 3
-                color: "#292e42" // Cor de fundo (vazio)
+                color: Theme.bgEmpty // Cor de fundo (vazio)
                 anchors.verticalCenter: parent.verticalCenter
 
                 // A barra que enche (verde)
@@ -150,7 +151,7 @@ Item {
                     // A mágica: a largura é uma porcentagem da largura do container (parent)
                     width: parent.width * (sysMonitor.ramValue / 100.0)
                     radius: 3
-                    color: "#9ece6a"
+                    color: Theme.green
 
                     // Suaviza quando a memória enche ou esvazia
                     Behavior on width {
@@ -162,7 +163,7 @@ Item {
                 }
                 Text {
                     text: sysMonitor.ramUsage
-                    color: "#ffffff"
+                    color: Theme.white
                     width: 50
                     font.pixelSize: 13
                     font.bold: true
@@ -174,7 +175,7 @@ Item {
                 width: 50
                 height: 24
                 radius: 3
-                color: "#292e42"
+                color: Theme.bgEmpty
                 anchors.verticalCenter: parent.verticalCenter
 
                 Rectangle {
@@ -183,7 +184,7 @@ Item {
                     anchors.bottom: parent.bottom
                     width: parent.width * (sysMonitor.swapValue / 100.0)
                     radius: 3
-                    color: "#ff9e64" // Laranja para o Swap
+                    color: Theme.orangeTokyo // Laranja para o Swap
                     Behavior on width {
                         NumberAnimation {
                             duration: 300
@@ -195,7 +196,7 @@ Item {
                 Text {
                     text: sysMonitor.swapUsage
                     width: 50
-                    color: "#fff"
+                    color: Theme.white
                     font.pixelSize: 13
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter

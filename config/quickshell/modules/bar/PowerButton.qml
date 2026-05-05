@@ -1,5 +1,6 @@
 import QtQuick
 import Quickshell
+import "../theme"
 
 Item {
     id: powerBtn
@@ -12,7 +13,7 @@ Item {
     Text {
         anchors.centerIn: parent
         text: "" 
-        color: "#f7768e" 
+        color: Theme.redTokyo 
         font.pixelSize: 18
         font.family: "JetBrains Nerd Font"
         

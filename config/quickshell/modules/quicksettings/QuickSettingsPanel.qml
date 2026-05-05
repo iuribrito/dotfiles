@@ -4,6 +4,7 @@ import QtQuick.Layouts
 import QtQuick.Controls
 import Quickshell.Wayland
 import "."
+import "../theme"
 
 PanelWindow {
     id: root
@@ -67,7 +68,7 @@ PanelWindow {
             // Behavior on opacity { NumberAnimation { duration: 400 } }
             Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
             onPaint: {
-                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = "#1e1e2e"; ctx.beginPath();
+                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                 ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
             }
         }
@@ -83,7 +84,7 @@ PanelWindow {
             // Behavior on opacity { NumberAnimation { duration: 400 } }
             Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
             onPaint: {
-                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = "#1e1e2e"; ctx.beginPath();
+                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                 ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
             }
         }
@@ -97,7 +98,7 @@ PanelWindow {
             
             height: QuickSettingsService.panelOpen ? (mainLayout.implicitHeight + 60) : 0
             clip: true
-            color: "#1e1e2e"
+            color: Theme.bgMain
             radius: 20
             
             Rectangle {
@@ -120,17 +121,17 @@ PanelWindow {
                 Behavior on y { NumberAnimation { duration: 700; easing.type: Easing.OutQuart } }
 
                 Text {
-                    text: "CONFIGURAÇÕES"; color: "#cba6f7"; font.pixelSize: 11; font.bold: true
+                    text: "CONFIGURAÇÕES"; color: Theme.primary; font.pixelSize: 11; font.bold: true
                     font.letterSpacing: 2; Layout.alignment: Qt.AlignHCenter; opacity: 0.6
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 8
                     RowLayout {
-                        Text { text: "󰕾"; color: "#cba6f7"; font.pixelSize: 16 }
-                        Text { text: "Volume"; color: "#cdd6f4"; font.pixelSize: 12; font.bold: true }
+                        Text { text: "󰕾"; color: Theme.primary; font.pixelSize: 16 }
+                        Text { text: "Volume"; color: Theme.textMain; font.pixelSize: 12; font.bold: true }
                         Item { Layout.fillWidth: true }
-                        Text { text: Math.floor(QuickSettingsService.volume * 100) + "%"; color: "#a6adc8"; font.pixelSize: 11 }
+                        Text { text: Math.floor(QuickSettingsService.volume * 100) + "%"; color: Theme.textSub; font.pixelSize: 11 }
                     }
                     Slider { Layout.fillWidth: true; value: QuickSettingsService.volume; onMoved: QuickSettingsService.setVolume(value) }
                 }
@@ -138,10 +139,10 @@ PanelWindow {
                 ColumnLayout {
                     Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 8
                     RowLayout {
-                        Text { text: "󰃠"; color: "#fab387"; font.pixelSize: 16 }
-                        Text { text: "Brilho"; color: "#cdd6f4"; font.pixelSize: 12; font.bold: true }
+                        Text { text: "󰃠"; color: Theme.orange; font.pixelSize: 16 }
+                        Text { text: "Brilho"; color: Theme.textMain; font.pixelSize: 12; font.bold: true }
                         Item { Layout.fillWidth: true }
-                        Text { text: Math.floor(QuickSettingsService.brightness * 100) + "%"; color: "#a6adc8"; font.pixelSize: 11 }
+                        Text { text: Math.floor(QuickSettingsService.brightness * 100) + "%"; color: Theme.textSub; font.pixelSize: 11 }
                     }
                     Slider { Layout.fillWidth: true; value: QuickSettingsService.brightness; onMoved: QuickSettingsService.setBrightness(value) }
                 }
@@ -149,20 +150,20 @@ PanelWindow {
                 RowLayout {
                     Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; Layout.bottomMargin: 20; spacing: 12
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.wifiEnabled ? "#cba6f7" : "#313244"
+                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.wifiEnabled ? Theme.primary : Theme.bgSurface
                         RowLayout {
                             anchors.centerIn: parent; spacing: 8
-                            Text { text: "󰖩"; font.pixelSize: 16; color: QuickSettingsService.wifiEnabled ? "#1e1e2e" : "#cdd6f4" }
-                            Text { text: "Wi-Fi"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.wifiEnabled ? "#1e1e2e" : "#cdd6f4" }
+                            Text { text: "󰖩"; font.pixelSize: 16; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
+                            Text { text: "Wi-Fi"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
                         }
                         MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.wifiEnabled = !QuickSettingsService.wifiEnabled }
                     }
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.bluetoothEnabled ? "#89b4fa" : "#313244"
+                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.bluetoothEnabled ? Theme.blue : Theme.bgSurface
                         RowLayout {
                             anchors.centerIn: parent; spacing: 8
-                            Text { text: "󰂯"; font.pixelSize: 16; color: QuickSettingsService.bluetoothEnabled ? "#1e1e2e" : "#cdd6f4" }
-                            Text { text: "Bluetooth"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.bluetoothEnabled ? "#1e1e2e" : "#cdd6f4" }
+                            Text { text: "󰂯"; font.pixelSize: 16; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
+                            Text { text: "Bluetooth"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
                         }
                         MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.bluetoothEnabled = !QuickSettingsService.bluetoothEnabled }
                     }

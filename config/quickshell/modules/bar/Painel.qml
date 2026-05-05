@@ -3,6 +3,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell.Services.SystemTray
 import "../quicksettings" as QS
+import "../theme"
 
 PanelWindow {
     id: barRoot
@@ -17,7 +18,7 @@ PanelWindow {
         right: true
     }
     implicitHeight: 35
-    color: "#1e1e2e"
+    color: Theme.bgMain
 
     Workspaces {}
 

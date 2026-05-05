@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Widgets
 import Quickshell.Services.Notifications
 import "."
+import "../theme"
 
 Rectangle {
     id: root
@@ -13,9 +14,9 @@ Rectangle {
     // Ajuste dinâmico de altura baseado no conteúdo
     height: Math.max(60, layout.implicitHeight + 20)
     
-    color: "#1e1e2e" // Catppuccin Mocha Base
+    color: Theme.bgMain // Catppuccin Mocha Base
     radius: 10
-    border.color: "#313244" // Catppuccin Mocha Surface0
+    border.color: Theme.bgSurface // Catppuccin Mocha Surface0
     border.width: 1
 
     RowLayout {
@@ -29,7 +30,7 @@ Rectangle {
             Layout.preferredWidth: 40
             Layout.preferredHeight: 40
             Layout.alignment: Qt.AlignTop
-            color: "#313244"
+            color: Theme.bgSurface
             radius: 6
             visible: appIcon.source != ""
 
@@ -60,7 +61,7 @@ Rectangle {
 
             Text {
                 text: root.notification.summary
-                color: "#cba6f7" // Catppuccin Mocha Mauve
+                color: Theme.primary // Catppuccin Mocha Mauve
                 font.bold: true
                 font.pixelSize: 14
                 Layout.fillWidth: true
@@ -69,7 +70,7 @@ Rectangle {
 
             Text {
                 text: root.notification.body
-                color: "#cdd6f4" // Catppuccin Mocha Text
+                color: Theme.textMain // Catppuccin Mocha Text
                 Layout.fillWidth: true
                 wrapMode: Text.Wrap
                 font.pixelSize: 12
@@ -89,7 +90,7 @@ Rectangle {
             Text {
                 anchors.centerIn: parent
                 text: "󰅖" // Ícone de fechar (ou use "×" se não tiver Nerd Font)
-                color: "#f38ba8" // Catppuccin Mocha Red
+                color: Theme.red // Catppuccin Mocha Red
                 font.pixelSize: 18
             }
         }
