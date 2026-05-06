@@ -29,6 +29,9 @@ QtObject {
             }
         }
         root.notifications = newNotifications;
-        notification.dismiss();
+        
+        // Em Quickshell, para fechar a notificação do lado do servidor,
+        // basta dizer que não estamos mais rastreando ela.
+        notification.tracked = false;
     }
 }

@@ -38,18 +38,25 @@ Rectangle {
                 id: appIcon
                 anchors.fill: parent
                 anchors.margins: 4
+                
                 source: {
-                    if (root.notification.image) return root.notification.image;
+                    if (root.notification.image) {
+                        return root.notification.image;
+                    }
                     if (root.notification.appIcon) {
                         if (root.notification.appIcon.startsWith("/") || root.notification.appIcon.startsWith("file://")) {
                             return root.notification.appIcon;
                         }
-                        // Tenta carregar do tema de ícones (fallback básico)
-                        return "image://icon/" + root.notification.appIcon;
+                        // Quickshell.iconPath procura o ícone no tema do sistema e retorna o caminho real
+                        return Quickshell.iconPath(root.notification.appIcon, "image-missing");
                     }
                     return "";
                 }
+                
+                // Configurações padrão de imagem
                 fillMode: Image.PreserveAspectFit
+                asynchronous: true
+                sourceSize: Qt.size(24, 24)
             }
         }
 

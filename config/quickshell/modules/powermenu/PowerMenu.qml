@@ -90,7 +90,7 @@ PanelWindow {
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
                     onClicked: {
-                        Process.start("sh", ["-c", btn.cmd]);
+                        Quickshell.execDetached(["sh", "-c", btn.cmd]);
                         pmRoot.close();
                     }
                 }

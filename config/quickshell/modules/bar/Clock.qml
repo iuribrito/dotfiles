@@ -87,7 +87,7 @@ Item {
                 opacity: 1
                 scale: clockWidget.isCalendarOpen ? 1 : 0
                 transformOrigin: Item.TopRight
-                Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
+                Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.Linear } }
                 onPaint: {
                     var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                     ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
@@ -103,7 +103,7 @@ Item {
                 opacity: 1
                 scale: clockWidget.isCalendarOpen ? 1 : 0
                 transformOrigin: Item.TopLeft
-                Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
+                Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.Linear } }
                 onPaint: {
                     var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                     ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
@@ -128,7 +128,7 @@ Item {
                 }
 
                 Behavior on height {
-                    NumberAnimation { duration: 700; easing.type: Easing.OutQuart }
+                    NumberAnimation { duration: 3000; easing.type: Easing.OutBack }
                 }
 
                 // --- VARIÁVEIS DE NAVEGAÇÃO ---

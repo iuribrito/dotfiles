@@ -137,9 +137,9 @@ Item {
 
             // Container da Barra de Progresso
             Rectangle {
-                width: 50 // Largura total da barra de progresso
+                width: 60 // Largura total da barra de progresso aumentada
                 height: 24 // Fica mais fina e elegante
-                radius: 3
+                radius: 5
                 color: Theme.bgEmpty // Cor de fundo (vazio)
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -148,9 +148,10 @@ Item {
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
+                    anchors.margins: 5
                     // A mágica: a largura é uma porcentagem da largura do container (parent)
-                    width: parent.width * (sysMonitor.ramValue / 100.0)
-                    radius: 3
+                    width: (parent.width - 10) * (sysMonitor.ramValue / 100.0)
+                    radius: 2
                     color: Theme.green
 
                     // Suaviza quando a memória enche ou esvazia
@@ -164,7 +165,7 @@ Item {
                 Text {
                     text: sysMonitor.ramUsage
                     color: Theme.white
-                    width: 50
+                    width: 60
                     font.pixelSize: 13
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
@@ -172,9 +173,9 @@ Item {
                 }
             }
             Rectangle {
-                width: 50
+                width: 60
                 height: 24
-                radius: 3
+                radius: 5
                 color: Theme.bgEmpty
                 anchors.verticalCenter: parent.verticalCenter
 
@@ -182,8 +183,9 @@ Item {
                     anchors.left: parent.left
                     anchors.top: parent.top
                     anchors.bottom: parent.bottom
-                    width: parent.width * (sysMonitor.swapValue / 100.0)
-                    radius: 3
+                    anchors.margins: 5
+                    width: (parent.width - 10) * (sysMonitor.swapValue / 100.0)
+                    radius: 2
                     color: Theme.orangeTokyo // Laranja para o Swap
                     Behavior on width {
                         NumberAnimation {
@@ -195,7 +197,7 @@ Item {
 
                 Text {
                     text: sysMonitor.swapUsage
-                    width: 50
+                    width: 60
                     color: Theme.white
                     font.pixelSize: 13
                     font.bold: true
