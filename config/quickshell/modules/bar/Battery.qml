@@ -41,9 +41,9 @@ Item {
         if (!root.activeBattery || _isStartup) return;
 
         if (isCharging) {
-            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "battery-level-0-charging-symbolic", "Carregador Conectado", "A bateria está sendo carregada."]);
+            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "battery-full-charging", "Carregador Conectado", "A bateria está sendo carregada."]);
         } else {
-            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "battery-missing-symbolic", "Carregador Desconectado", "O sistema está usando a bateria."]);
+            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "battery", "Carregador Desconectado", "O sistema está usando a bateria."]);
         }
     }
 
@@ -67,7 +67,7 @@ Item {
 
         // Dispara as notificações dependendo do nível e se já foi notificado
         if (pct <= 50 && pct > 10 && !notified50) {
-            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "battery-level-50", "Bateria a 50%", "Ainda tem carga, mas fique de olho."]);
+            Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "Bateria a 50%", "Ainda tem carga, mas fique de olho."]);
             notified50 = true;
         } else if (pct <= 10 && pct > 5 && !notified10) {
             Quickshell.execDetached(["notify-send", "-u", "critical", "-a", "Quickshell", "-i", "battery-low", "Bateria Fraca!", "A bateria chegou a 10%. Conecte o carregador."]);

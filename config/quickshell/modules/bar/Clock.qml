@@ -1,6 +1,7 @@
 import QtQuick
-import QtQuick.Controls 
-import QtQuick.Layouts  
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Effects
 import Quickshell
 import Quickshell.Wayland
 import "../theme"
@@ -132,6 +133,19 @@ Item {
                 onClicked: (mouse) => { mouse.accepted = true }
             }
 
+            // RectangularShadow {
+            //     anchors.left: container.left
+            //     anchors.right: container.right
+            //     anchors.top: container.top
+            //     height: container.height
+            //     radius: 20
+            //     blur: 32
+            //     spread: 2
+            //     color: "#BB000000"
+            //     offset: Qt.vector2d(0, 6)
+            //     cached: true
+            // }
+
             // --- Cantos Invertidos (Fillets) da esquerda ---
             Canvas {
                 id: filletLeft
@@ -142,7 +156,7 @@ Item {
                 scale: 0
                 transformOrigin: Item.TopRight
                 onPaint: {
-                    var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
+                    var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMainAlpha; ctx.beginPath();
                     ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
                 }
             }
@@ -157,7 +171,7 @@ Item {
                 scale: 0
                 transformOrigin: Item.TopLeft
                 onPaint: {
-                    var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
+                    var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMainAlpha; ctx.beginPath();
                     ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
                 }
             }
@@ -176,7 +190,7 @@ Item {
                     id: containerBg
                     anchors.fill: parent
                     anchors.topMargin: -20
-                    color: Theme.bgMain
+                    color: Theme.bgMainAlpha
                     radius: 20
                 }
 

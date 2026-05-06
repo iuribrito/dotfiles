@@ -6,6 +6,7 @@ QtObject {
 
     // Fundos (Backgrounds) - Catppuccin Mocha
     property color bgMain: "#1e1e2e"    // Base
+    property color bgMainAlpha: "#CC1e1e2e" // Base com 80% opacidade para painéis translúcidos
     property color bgSurface: "#313244" // Surface0
     property color bgHover: "#45475a"   // Surface1
     property color bgDark: "#181825"    // Mantle
@@ -28,6 +29,7 @@ QtObject {
     property color red: "#f38ba8"       // Red
     property color redTokyo: "#eba0ac"  // Maroon (substituindo o vermelho Tokyonight)
     
+    property color greenLight: "#6ed166"     // Green
     property color green: "#a6e3a1"     // Green
     
     property color yellow: "#f9e2af"    // Yellow

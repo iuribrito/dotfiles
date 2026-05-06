@@ -7,13 +7,21 @@ QtObject {
     id: root
 
     property list<Notification> notifications: []
+    property var history: []
 
     readonly property NotificationServer server: NotificationServer {
         onNotification: (notification) => {
             notification.tracked = true;
             root.notifications = [notification, ...root.notifications];
-            
-            // Auto-dismiss after 5 seconds
+
+            root.history = [{
+                appName: notification.appName || "",
+                summary: notification.summary || "",
+                body: notification.body || "",
+                appIcon: notification.appIcon || "",
+                time: Qt.formatTime(new Date(), "hh:mm")
+            }, ...root.history];
+
             const timer = Qt.createQmlObject("import QtQuick; Timer { interval: 5000; running: true; onTriggered: destroy() }", root);
             timer.triggered.connect(() => {
                 root.removeNotification(notification);
@@ -29,9 +37,10 @@ QtObject {
             }
         }
         root.notifications = newNotifications;
-        
-        // Em Quickshell, para fechar a notificação do lado do servidor,
-        // basta dizer que não estamos mais rastreando ela.
         notification.tracked = false;
+    }
+
+    function clearHistory() {
+        root.history = [];
     }
 }

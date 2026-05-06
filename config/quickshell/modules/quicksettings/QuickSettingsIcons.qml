@@ -6,7 +6,7 @@ import "../theme"
 
 Item {
     id: root
-    implicitWidth: layout.width + 10
+    implicitWidth: layout.width + 20
     implicitHeight: layout.height
 
     MouseArea {
@@ -15,37 +15,45 @@ Item {
         onClicked: QuickSettingsService.panelOpen = !QuickSettingsService.panelOpen
     }
 
-    RowLayout {
-        id: layout
-        anchors.centerIn: parent
-        spacing: 12
+    Rectangle {
+        width: 100 // Largura total da barra de progresso aumentada
+        height: 24 // Fica mais fina e elegante
+        radius: 5
+        color: Theme.bgMain // Cor de fundo (vazio)
+        anchors.verticalCenter: parent.verticalCenter
 
-        // WiFi
-        Text {
-            text: QuickSettingsService.wifiEnabled ? "󰖩" : "󰖪"
-            color: Theme.primary
-            font.pixelSize: 14
-        }
+        RowLayout {
+            id: layout
+            anchors.centerIn: parent
+            spacing: 12
 
-        // Bluetooth
-        Text {
-            text: QuickSettingsService.bluetoothEnabled ? "󰂯" : "󰂲"
-            color: Theme.blue
-            font.pixelSize: 14
-        }
+            // WiFi
+            Text {
+                text: QuickSettingsService.wifiEnabled ? "󰖩" : "󰖪"
+                color: Theme.primary
+                font.pixelSize: 14
+            }
 
-        // Volume
-        Text {
-            text: QuickSettingsService.muted ? "󰝟" : (QuickSettingsService.volume > 0.5 ? "󰕾" : "󰖀")
-            color: Theme.yellow
-            font.pixelSize: 14
-        }
+            // Bluetooth
+            Text {
+                text: QuickSettingsService.bluetoothEnabled ? "󰂯" : "󰂲"
+                color: Theme.primary
+                font.pixelSize: 14
+            }
 
-        // Brilho
-        Text {
-            text: "󰃠"
-            color: Theme.orange
-            font.pixelSize: 14
+            // Volume
+            Text {
+                text: QuickSettingsService.muted ? "󰝟" : (QuickSettingsService.volume > 0.5 ? "󰕾" : "󰖀")
+                color: Theme.primary
+                font.pixelSize: 14
+            }
+
+            // Brilho
+            Text {
+                text: "󰃠"
+                color: Theme.primary
+                font.pixelSize: 14
+            }
         }
     }
 }

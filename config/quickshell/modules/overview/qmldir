@@ -1,0 +1,5 @@
+singleton GlobalStates 1.0 GlobalStates.qml
+singleton HyprlandData 1.0 HyprlandData.qml
+OverviewPanel 1.0 OverviewPanel.qml
+OverviewWidget 1.0 OverviewWidget.qml
+OverviewWindow 1.0 OverviewWindow.qml

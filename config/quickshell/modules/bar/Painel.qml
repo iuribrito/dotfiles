@@ -1,6 +1,7 @@
 import Quickshell
 import QtQuick
 import QtQuick.Layouts
+import Quickshell.Wayland
 import Quickshell.Services.SystemTray
 import "../quicksettings" as QS
 import "../theme"
@@ -17,8 +18,21 @@ PanelWindow {
         left: true
         right: true
     }
+    margins {
+        top: 10
+        left: 10
+        right: 10
+    }
+    WlrLayershell.namespace: "bar"
+    exclusiveZone: 35
     implicitHeight: 35
-    color: Theme.bgMain
+    color: "transparent"
+
+    Rectangle {
+        anchors.fill: parent
+        color: Theme.bgMainAlpha
+        radius: 10
+    }
 
     Workspaces {}
 

@@ -56,7 +56,7 @@ Item {
 
     Row {
         id: layout
-        spacing: 15
+        spacing: 10
         anchors.verticalCenter: parent.verticalCenter
 
         // --- 1. BLOCO DA CPU (Mini Gráfico) ---
@@ -115,9 +115,10 @@ Item {
             Text {
                 text: sysMonitor.cpuUsage
                 color: Theme.blueTokyo
+                width: 30
                 font.pixelSize: 13
                 font.bold: true
-                horizontalAlignment: Text.AlignLeft
+                horizontalAlignment: Text.AlignHCenter
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
@@ -137,10 +138,10 @@ Item {
 
             // Container da Barra de Progresso
             Rectangle {
-                width: 60 // Largura total da barra de progresso aumentada
+                width: 50 // Largura total da barra de progresso aumentada
                 height: 24 // Fica mais fina e elegante
                 radius: 5
-                color: Theme.bgEmpty // Cor de fundo (vazio)
+                color: Theme.bgDark // Cor de fundo (vazio)
                 anchors.verticalCenter: parent.verticalCenter
 
                 // A barra que enche (verde)
@@ -162,21 +163,21 @@ Item {
                         }
                     }
                 }
-                Text {
-                    text: sysMonitor.ramUsage
-                    color: Theme.white
-                    width: 60
-                    font.pixelSize: 13
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+            }
+            Text {
+                text: sysMonitor.ramUsage
+                color: Theme.green
+                width: 30
+                font.pixelSize: 13
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.verticalCenter: parent.verticalCenter
             }
             Rectangle {
-                width: 60
+                width: 50
                 height: 24
                 radius: 5
-                color: Theme.bgEmpty
+                color: Theme.bgDark
                 anchors.verticalCenter: parent.verticalCenter
 
                 Rectangle {
@@ -195,15 +196,15 @@ Item {
                     }
                 }
 
-                Text {
-                    text: sysMonitor.swapUsage
-                    width: 60
-                    color: Theme.white
-                    font.pixelSize: 13
-                    font.bold: true
-                    horizontalAlignment: Text.AlignHCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                }
+            }
+            Text {
+                text: sysMonitor.swapUsage
+                width: 30
+                color: Theme.orangeTokyo
+                font.pixelSize: 13
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                anchors.verticalCenter: parent.verticalCenter
             }
         }
     }

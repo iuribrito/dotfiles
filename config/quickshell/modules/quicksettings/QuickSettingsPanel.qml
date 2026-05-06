@@ -2,9 +2,11 @@ import Quickshell
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls
+import QtQuick.Effects
 import Quickshell.Wayland
 import "."
 import "../theme"
+import "../notifications"
 
 PanelWindow {
     id: root
@@ -50,12 +52,24 @@ PanelWindow {
         width: 450
         height: 600
 
+        // heightProxy quebra o binding loop:
+        // PropertyChanges binding para mainLayout.implicitHeight (filho de container) faz o engine
+        // de layout re-emitir implicitHeightChanged ao re-layoutar container, criando loop.
+        // Usando um QtObject atualizado imperativamente via Connections, o detector de loop
+        // não consegue traçar o ciclo (ele só segue bindings declarativos, não assignments).
+        QtObject { id: heightProxy; property real value: 0 }
+        Connections {
+            target: mainLayout
+            function onImplicitHeightChanged() { heightProxy.value = mainLayout.implicitHeight }
+        }
+        Component.onCompleted: heightProxy.value = mainLayout.implicitHeight
+
         state: QuickSettingsService.panelOpen ? "open" : "closed"
 
         states: [
             State {
                 name: "open"
-                PropertyChanges { target: container; height: mainLayout.implicitHeight + 60 }
+                PropertyChanges { target: container; height: heightProxy.value + 60 }
                 PropertyChanges { target: filletLeft; scale: 1 }
                 PropertyChanges { target: filletRight; scale: 1 }
                 PropertyChanges { target: mainLayout; y: 0 }
@@ -110,6 +124,19 @@ PanelWindow {
             onClicked: (mouse) => { mouse.accepted = true }
         }
 
+        // RectangularShadow {
+        //     anchors.left: container.left
+        //     anchors.right: container.right
+        //     anchors.top: container.top
+        //     height: container.height
+        //     radius: 20
+        //     blur: 32
+        //     spread: 2
+        //     color: "#BB000000"
+        //     offset: Qt.vector2d(0, 6)
+        //     cached: true
+        // }
+
         // --- Cantos Invertidos (Fillets) ---
         Canvas {
             id: filletLeft
@@ -120,7 +147,7 @@ PanelWindow {
             scale: 0
             transformOrigin: Item.TopRight
             onPaint: {
-                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
+                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMainAlpha; ctx.beginPath();
                 ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
             }
         }
@@ -134,7 +161,7 @@ PanelWindow {
             scale: 0
             transformOrigin: Item.TopLeft
             onPaint: {
-                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
+                var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMainAlpha; ctx.beginPath();
                 ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
             }
         }
@@ -153,7 +180,7 @@ PanelWindow {
                 id: containerBg
                 anchors.fill: parent
                 anchors.topMargin: -20
-                color: Theme.bgMain
+                color: Theme.bgMainAlpha
                 radius: 20
             }
 
@@ -194,27 +221,169 @@ PanelWindow {
                 }
 
                 RowLayout {
-                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; Layout.bottomMargin: 20; spacing: 12
+                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 10
+                    
+                    // Wi-Fi
                     Rectangle {
                         Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.wifiEnabled ? Theme.primary : Theme.bgSurface
                         RowLayout {
-                            anchors.centerIn: parent; spacing: 8
-                            Text { text: "󰖩"; font.pixelSize: 16; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
-                            Text { text: "Wi-Fi"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
+                            anchors.centerIn: parent; spacing: 6
+                            Text { text: "󰖩"; font.pixelSize: 14; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
+                            Text { text: "Wi-Fi"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
                         }
                         MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.wifiEnabled = !QuickSettingsService.wifiEnabled }
                     }
+
+                    // Bluetooth
                     Rectangle {
                         Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.bluetoothEnabled ? Theme.blue : Theme.bgSurface
                         RowLayout {
-                            anchors.centerIn: parent; spacing: 8
-                            Text { text: "󰂯"; font.pixelSize: 16; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
-                            Text { text: "Bluetooth"; font.pixelSize: 10; font.bold: true; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
+                            anchors.centerIn: parent; spacing: 6
+                            Text { text: "󰂯"; font.pixelSize: 14; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
+                            Text { text: "BT"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
                         }
                         MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.bluetoothEnabled = !QuickSettingsService.bluetoothEnabled }
+                    }
+
+                    // VPN
+                    Rectangle {
+                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.vpnActive ? Theme.orange : Theme.bgSurface
+                        RowLayout {
+                            anchors.centerIn: parent; spacing: 6
+                            Text { text: "󰖂"; font.pixelSize: 14; color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain }
+                            Text { text: "VPN"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain }
+                        }
+                        MouseArea {
+                            anchors.fill: parent;
+                            onClicked: QuickSettingsService.toggleVpn()
+                        }
+                    }
+
+                    // Hypridle
+                    Rectangle {
+                        Layout.fillWidth: true; height: 50; radius: 10
+                        color: QuickSettingsService.hypridleActive ? Theme.yellow : Theme.bgSurface
+                        RowLayout {
+                            anchors.centerIn: parent; spacing: 6
+                            Text { text: "󰒲"; font.pixelSize: 14; color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain }
+                            Text { text: "Idle"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain }
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: QuickSettingsService.toggleHypridle()
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25
+                    height: 1; color: Theme.bgSurface
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25
+
+                    Text {
+                        text: "NOTIFICAÇÕES"; color: Theme.blue; font.pixelSize: 11; font.bold: true
+                        font.letterSpacing: 2; opacity: 0.6
+                    }
+                    Item { Layout.fillWidth: true }
+                    Text {
+                        visible: NotificationService.history.length > 0
+                        text: NotificationService.history.length
+                        color: Theme.textMuted; font.pixelSize: 11
+                    }
+                    Item { width: 4 }
+                    MouseArea {
+                        width: 20; height: 20
+                        visible: NotificationService.history.length > 0
+                        cursorShape: Qt.PointingHandCursor
+                        onClicked: NotificationService.clearHistory()
+                        Text { anchors.centerIn: parent; text: "󰅖"; color: Theme.textMuted; font.pixelSize: 14 }
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 15; Layout.rightMargin: 15
+                    Layout.bottomMargin: 20
+                    // Altura calculada pelo count × delegate fixo (54 = 48px + 6px spacing)
+                    // evita dependência de contentHeight que causaria binding loop via container.height
+                    implicitHeight: NotificationService.history.length === 0
+                        ? 36
+                        : Math.min(NotificationService.history.length * 54 - 6, 220)
+                    clip: true
+
+                    Text {
+                        visible: NotificationService.history.length === 0
+                        anchors.centerIn: parent
+                        text: "Nenhuma notificação"; color: Theme.textMuted; font.pixelSize: 12; opacity: 0.5
+                    }
+
+                    ListView {
+                        id: notifList
+                        width: parent.width
+                        height: parent.height
+                        visible: NotificationService.history.length > 0
+                        model: NotificationService.history
+                        spacing: 6
+                        clip: true
+                        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: 48
+                            radius: 8
+                            color: Theme.bgSurface
+
+                            RowLayout {
+                                anchors.fill: parent; anchors.margins: 10; spacing: 8
+
+                                Rectangle {
+                                    width: 28; height: 28; radius: 6; color: Theme.bgHover
+                                    visible: modelData.appIcon !== ""
+                                    Image {
+                                        anchors.fill: parent; anchors.margins: 4
+                                        source: {
+                                            if (!modelData.appIcon) return "";
+                                            if (modelData.appIcon.startsWith("/") || modelData.appIcon.startsWith("file://")) return modelData.appIcon;
+                                            return Quickshell.iconPath(modelData.appIcon, "image-missing");
+                                        }
+                                        fillMode: Image.PreserveAspectFit; asynchronous: true; sourceSize: Qt.size(20, 20)
+                                    }
+                                }
+                                Text {
+                                    visible: modelData.appIcon === ""
+                                    text: "󰂚"; color: Theme.textMuted; font.pixelSize: 16
+                                }
+
+                                ColumnLayout {
+                                    Layout.fillWidth: true; spacing: 2
+                                    Text {
+                                        text: modelData.summary || modelData.appName || "Notificação"
+                                        color: Theme.textMain; font.pixelSize: 12; font.bold: true
+                                        Layout.fillWidth: true; elide: Text.ElideRight
+                                    }
+                                    Text {
+                                        visible: modelData.body !== ""
+                                        text: modelData.body || ""
+                                        color: Theme.textSub; font.pixelSize: 10
+                                        Layout.fillWidth: true; elide: Text.ElideRight
+                                        maximumLineCount: 1
+                                    }
+                                }
+
+                                Text {
+                                    text: modelData.time
+                                    color: Theme.textMuted; font.pixelSize: 10
+                                    Layout.alignment: Qt.AlignTop
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
     }
 }
+

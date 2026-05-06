@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Hyprland
+import "../overview"
 
 Row {
     id: wsList
@@ -54,15 +55,16 @@ Row {
                 }
             }
 
-            // --- INTERAÇÃO DE CLIQUE ---
             MouseArea {
                 anchors.fill: parent
                 cursorShape: Qt.PointingHandCursor
+                acceptedButtons: Qt.LeftButton | Qt.RightButton
 
-                onClicked: {
-                    // Executa o comando do Hyprland para mudar de workspace
-                    // Usamos o dispatch do Quickshell para enviar o comando
-                    Hyprland.dispatch(`workspace ${wsNumber}`);
+                onClicked: function(mouse) {
+                    if (mouse.button === Qt.RightButton)
+                        GlobalStates.overviewOpen = !GlobalStates.overviewOpen
+                    else
+                        Hyprland.dispatch(`workspace ${wsNumber}`)
                 }
             }
         }
