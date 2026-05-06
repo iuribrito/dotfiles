@@ -100,22 +100,22 @@ Item {
                         NumberAnimation { target: container; property: "height"; duration: 400; easing.type: Easing.OutExpo }
                         NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
                         NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
-                        // NumberAnimation { target: mainLayout; properties: "y"; duration: 500; easing.type: Easing.OutQuart }
+                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 500; easing.type: Easing.OutQuart }
                     }
                 },
                 Transition {
                     from: "open"; to: "closed"
                     ParallelAnimation {
                         NumberAnimation { target: container; property: "height"; duration: 300; easing.type: Easing.InExpo }
-                        // NumberAnimation { target: mainLayout; properties: "y"; duration: 300; easing.type: Easing.InQuart }
+                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 300; easing.type: Easing.InQuart }
                         
                         SequentialAnimation {
-                            PauseAnimation { duration: 150 }
+                            PauseAnimation { duration: 155 }
                             NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.InQuad }
                         }
                         
                         SequentialAnimation {
-                            PauseAnimation { duration: 150 }
+                            PauseAnimation { duration: 155 }
                             NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.InQuad }
                         }
                     }
@@ -158,7 +158,7 @@ Item {
                 }
             }
 
-            Rectangle {
+            Item {
                 id: container
                 width: 320
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -166,12 +166,14 @@ Item {
                 
                 height: 0
                 clip: true
-                color: Theme.bgMain
-                radius: 20
-                
-                // Esconde o arredondamento na parte de cima para grudar na barra
+
+                // Fundo com arredondamento apenas embaixo (usando margem negativa em cima)
                 Rectangle {
-                    width: parent.width; height: 30; color: parent.color; anchors.top: parent.top
+                    id: containerBg
+                    anchors.fill: parent
+                    anchors.topMargin: -20
+                    color: Theme.bgMain
+                    radius: 20
                 }
 
                 // --- VARIÁVEIS DE NAVEGAÇÃO ---
