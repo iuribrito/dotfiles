@@ -72,6 +72,56 @@ Item {
             width: 360
             height: 600
 
+            state: clockWidget.isCalendarOpen ? "open" : "closed"
+
+            states: [
+                State {
+                    name: "open"
+                    PropertyChanges { target: container; height: 350 }
+                    PropertyChanges { target: filletLeft; scale: 1 }
+                    PropertyChanges { target: filletRight; scale: 1 }
+                    PropertyChanges { target: mainLayout; y: 0 }
+                    PropertyChanges { target: mainLayout; opacity: 1 }
+                },
+                State {
+                    name: "closed"
+                    PropertyChanges { target: container; height: 0 }
+                    PropertyChanges { target: filletLeft; scale: 0 }
+                    PropertyChanges { target: filletRight; scale: 0 }
+                    PropertyChanges { target: mainLayout; y: -20 }
+                    PropertyChanges { target: mainLayout; opacity: 1 }
+                }
+            ]
+
+            transitions: [
+                Transition {
+                    from: "closed"; to: "open"
+                    ParallelAnimation {
+                        NumberAnimation { target: container; property: "height"; duration: 400; easing.type: Easing.OutExpo }
+                        NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
+                        NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
+                        // NumberAnimation { target: mainLayout; properties: "y"; duration: 500; easing.type: Easing.OutQuart }
+                    }
+                },
+                Transition {
+                    from: "open"; to: "closed"
+                    ParallelAnimation {
+                        NumberAnimation { target: container; property: "height"; duration: 300; easing.type: Easing.InExpo }
+                        // NumberAnimation { target: mainLayout; properties: "y"; duration: 300; easing.type: Easing.InQuart }
+                        
+                        SequentialAnimation {
+                            PauseAnimation { duration: 150 }
+                            NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.InQuad }
+                        }
+                        
+                        SequentialAnimation {
+                            PauseAnimation { duration: 150 }
+                            NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.InQuad }
+                        }
+                    }
+                }
+            ]
+
             // Bloqueia cliques para que clicar DENTRO do painel não o feche
             MouseArea {
                 anchors.fill: container
@@ -85,9 +135,8 @@ Item {
                 anchors.right: container.left
                 anchors.top: container.top
                 opacity: 1
-                scale: clockWidget.isCalendarOpen ? 1 : 0
+                scale: 0
                 transformOrigin: Item.TopRight
-                Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.Linear } }
                 onPaint: {
                     var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                     ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
@@ -101,9 +150,8 @@ Item {
                 anchors.left: container.right
                 anchors.top: container.top
                 opacity: 1
-                scale: clockWidget.isCalendarOpen ? 1 : 0
+                scale: 0
                 transformOrigin: Item.TopLeft
-                Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.Linear } }
                 onPaint: {
                     var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                     ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
@@ -116,8 +164,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 
-                // Anima a altura
-                height: clockWidget.isCalendarOpen ? 350 : 0
+                height: 0
                 clip: true
                 color: Theme.bgMain
                 radius: 20
@@ -125,10 +172,6 @@ Item {
                 // Esconde o arredondamento na parte de cima para grudar na barra
                 Rectangle {
                     width: parent.width; height: 30; color: parent.color; anchors.top: parent.top
-                }
-
-                Behavior on height {
-                    NumberAnimation { duration: 3000; easing.type: Easing.OutBack }
                 }
 
                 // --- VARIÁVEIS DE NAVEGAÇÃO ---
@@ -150,10 +193,8 @@ Item {
                     anchors.topMargin: 20
                     spacing: 10
                     
-                    // Animação de descer o conteúdo
-                    opacity: clockWidget.isCalendarOpen ? 1 : 1
-                    y: clockWidget.isCalendarOpen ? 0 : -20
-                    Behavior on y { NumberAnimation { duration: 700; easing.type: Easing.OutQuart } }
+                    opacity: 0
+                    y: -20
 
                     // --- CABEÇALHO COM NAVEGAÇÃO ---
                     RowLayout {
