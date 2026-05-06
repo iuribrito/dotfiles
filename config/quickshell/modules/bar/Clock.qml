@@ -89,7 +89,7 @@ Item {
                     PropertyChanges { target: filletLeft; scale: 0 }
                     PropertyChanges { target: filletRight; scale: 0 }
                     PropertyChanges { target: mainLayout; y: -20 }
-                    PropertyChanges { target: mainLayout; opacity: 1 }
+                    PropertyChanges { target: mainLayout; opacity: 0 }
                 }
             ]
 
@@ -100,14 +100,18 @@ Item {
                         NumberAnimation { target: container; property: "height"; duration: 400; easing.type: Easing.OutExpo }
                         NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
                         NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
-                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 500; easing.type: Easing.OutQuart }
+                        
+                        SequentialAnimation {
+                            PauseAnimation { duration: 50 }
+                            NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 200; easing.type: Easing.OutExpo }
+                        }
                     }
                 },
                 Transition {
                     from: "open"; to: "closed"
                     ParallelAnimation {
                         NumberAnimation { target: container; property: "height"; duration: 300; easing.type: Easing.InExpo }
-                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 300; easing.type: Easing.InQuart }
+                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 200; easing.type: Easing.InQuart }
                         
                         SequentialAnimation {
                             PauseAnimation { duration: 155 }
@@ -116,7 +120,7 @@ Item {
                         
                         SequentialAnimation {
                             PauseAnimation { duration: 155 }
-                            NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.InQuad }
+                            NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.InExpo }
                         }
                     }
                 }

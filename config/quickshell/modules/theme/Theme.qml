@@ -5,7 +5,7 @@ QtObject {
     id: theme
 
     // Fundos (Backgrounds) - Catppuccin Mocha
-    property color bgMain: "#ff1e2e"    // Base
+    property color bgMain: "#1e1e2e"    // Base
     property color bgSurface: "#313244" // Surface0
     property color bgHover: "#45475a"   // Surface1
     property color bgDark: "#181825"    // Mantle

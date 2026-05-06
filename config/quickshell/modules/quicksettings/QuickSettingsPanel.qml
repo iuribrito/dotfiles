@@ -50,6 +50,60 @@ PanelWindow {
         width: 450
         height: 600
 
+        state: QuickSettingsService.panelOpen ? "open" : "closed"
+
+        states: [
+            State {
+                name: "open"
+                PropertyChanges { target: container; height: mainLayout.implicitHeight + 60 }
+                PropertyChanges { target: filletLeft; scale: 1 }
+                PropertyChanges { target: filletRight; scale: 1 }
+                PropertyChanges { target: mainLayout; y: 0 }
+                PropertyChanges { target: mainLayout; opacity: 1 }
+            },
+            State {
+                name: "closed"
+                PropertyChanges { target: container; height: 0 }
+                PropertyChanges { target: filletLeft; scale: 0 }
+                PropertyChanges { target: filletRight; scale: 0 }
+                PropertyChanges { target: mainLayout; y: -20 }
+                PropertyChanges { target: mainLayout; opacity: 0 }
+            }
+        ]
+
+        transitions: [
+            Transition {
+                from: "closed"; to: "open"
+                ParallelAnimation {
+                    NumberAnimation { target: container; property: "height"; duration: 400; easing.type: Easing.OutExpo }
+                    NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
+                    NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.OutQuad }
+                    
+                    SequentialAnimation {
+                        PauseAnimation { duration: 50 }
+                        NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 500; easing.type: Easing.OutQuart }
+                    }
+                }
+            },
+            Transition {
+                from: "open"; to: "closed"
+                ParallelAnimation {
+                    NumberAnimation { target: container; property: "height"; duration: 300; easing.type: Easing.InExpo }
+                    NumberAnimation { target: mainLayout; properties: "y,opacity"; duration: 300; easing.type: Easing.InQuart }
+                    
+                    SequentialAnimation {
+                        PauseAnimation { duration: 150 }
+                        NumberAnimation { target: filletLeft; property: "scale"; duration: 150; easing.type: Easing.InQuad }
+                    }
+                    
+                    SequentialAnimation {
+                        PauseAnimation { duration: 150 }
+                        NumberAnimation { target: filletRight; property: "scale"; duration: 150; easing.type: Easing.InQuad }
+                    }
+                }
+            }
+        ]
+
         // Bloqueia cliques para que clicar DENTRO do painel não o feche
         MouseArea {
             anchors.fill: container
@@ -63,10 +117,8 @@ PanelWindow {
             anchors.right: container.left
             anchors.top: container.top
             opacity: 1
-            scale: QuickSettingsService.panelOpen ? 1 : 0
+            scale: 0
             transformOrigin: Item.TopRight
-            // Behavior on opacity { NumberAnimation { duration: 400 } }
-            Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
             onPaint: {
                 var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                 ctx.moveTo(0, 0); ctx.arcTo(20, 0, 20, 20, 20); ctx.lineTo(20, 0); ctx.closePath(); ctx.fill();
@@ -79,34 +131,30 @@ PanelWindow {
             anchors.left: container.right
             anchors.top: container.top
             opacity: 1
-            scale: QuickSettingsService.panelOpen ? 1 : 0
+            scale: 0
             transformOrigin: Item.TopLeft
-            // Behavior on opacity { NumberAnimation { duration: 400 } }
-            Behavior on scale { NumberAnimation { duration: 1000; easing.type: Easing.OutBack } }
             onPaint: {
                 var ctx = getContext("2d"); ctx.reset(); ctx.fillStyle = Theme.bgMain; ctx.beginPath();
                 ctx.moveTo(20, 0); ctx.arcTo(0, 0, 0, 20, 20); ctx.lineTo(0, 0); ctx.closePath(); ctx.fill();
             }
         }
 
-        Rectangle {
+        Item {
             id: container
             width: 330
             anchors.right: parent.right
             anchors.rightMargin: 40
             anchors.top: parent.top
             
-            height: QuickSettingsService.panelOpen ? (mainLayout.implicitHeight + 60) : 0
+            height: 0
             clip: true
-            color: Theme.bgMain
-            radius: 20
-            
-            Rectangle {
-                width: parent.width; height: 30; color: parent.color; anchors.top: parent.top
-            }
 
-            Behavior on height {
-                NumberAnimation { duration: 700; easing.type: Easing.OutQuart }
+            Rectangle {
+                id: containerBg
+                anchors.fill: parent
+                anchors.topMargin: -20
+                color: Theme.bgMain
+                radius: 20
             }
 
             ColumnLayout {
@@ -115,10 +163,8 @@ PanelWindow {
                 anchors.top: parent.top
                 anchors.topMargin: 20
                 spacing: 20
-                opacity: QuickSettingsService.panelOpen ? 1 : 1
-                y: QuickSettingsService.panelOpen ? 0 : -20
-                // Behavior on opacity { NumberAnimation { duration: 300 } }
-                Behavior on y { NumberAnimation { duration: 700; easing.type: Easing.OutQuart } }
+                opacity: 0
+                y: -20
 
                 Text {
                     text: "CONFIGURAÇÕES"; color: Theme.primary; font.pixelSize: 11; font.bold: true
