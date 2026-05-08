@@ -14,7 +14,7 @@ PanelWindow {
     screen: modelData
 
     WlrLayershell.namespace: "quicksettings"
-    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.layer: WlrLayer.Top
     exclusiveZone: 0
 
     // Ocupa a tela inteira para capturar cliques fora do painel
@@ -188,25 +188,63 @@ PanelWindow {
                 id: mainLayout
                 width: parent.width
                 anchors.top: parent.top
-                anchors.topMargin: 20
+                anchors.topMargin: 30
                 spacing: 20
                 opacity: 0
                 y: -20
 
-                Text {
-                    text: "CONFIGURAÇÕES"; color: Theme.primary; font.pixelSize: 11; font.bold: true
-                    font.letterSpacing: 2; Layout.alignment: Qt.AlignHCenter; opacity: 0.6
+                ColumnLayout {
+                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 8
+                    RowLayout {
+                        Text {
+                            text: QuickSettingsService.muted ? "󰖁" : "󰕾"
+                            color: QuickSettingsService.muted ? Theme.textSub : Theme.primary
+                            font.pixelSize: 16
+                            font.family: "JetBrainsMono Nerd Font"
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: QuickSettingsService.toggleMute()
+                            }
+                        }
+                        Text { text: "Volume"; color: Theme.textMain; font.pixelSize: 12; font.bold: true }
+                        Item { Layout.fillWidth: true }
+                        Text { text: Math.floor(QuickSettingsService.volume * 100) + "%"; color: Theme.textSub; font.pixelSize: 11; opacity: QuickSettingsService.muted ? 0.4 : 1.0 }
+                    }
+                    SliderCustom {
+                        Layout.fillWidth: true
+                        value: QuickSettingsService.volume
+                        onMoved: QuickSettingsService.setVolume(value)
+                        fillColor: Theme.primary
+                        opacity: QuickSettingsService.muted ? 0.4 : 1.0
+                    }
                 }
 
                 ColumnLayout {
                     Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 8
                     RowLayout {
-                        Text { text: "󰕾"; color: Theme.primary; font.pixelSize: 16 }
-                        Text { text: "Volume"; color: Theme.textMain; font.pixelSize: 12; font.bold: true }
+                        Text {
+                            text: QuickSettingsService.micMuted ? "󰍭" : "󰍬"
+                            color: QuickSettingsService.micMuted ? Theme.textSub : Theme.red
+                            font.pixelSize: 16
+                            font.family: "JetBrainsMono Nerd Font"
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: QuickSettingsService.toggleMicMute()
+                            }
+                        }
+                        Text { text: "Microfone"; color: Theme.textMain; font.pixelSize: 12; font.bold: true }
                         Item { Layout.fillWidth: true }
-                        Text { text: Math.floor(QuickSettingsService.volume * 100) + "%"; color: Theme.textSub; font.pixelSize: 11 }
+                        Text { text: Math.floor(QuickSettingsService.micVolume * 100) + "%"; color: Theme.textSub; font.pixelSize: 11; opacity: QuickSettingsService.micMuted ? 0.4 : 1.0 }
                     }
-                    Slider { Layout.fillWidth: true; value: QuickSettingsService.volume; onMoved: QuickSettingsService.setVolume(value) }
+                    SliderCustom {
+                        Layout.fillWidth: true
+                        value: QuickSettingsService.micVolume
+                        onMoved: QuickSettingsService.setMicVolume(value)
+                        fillColor: Theme.red
+                        opacity: QuickSettingsService.micMuted ? 0.4 : 1.0
+                    }
                 }
 
                 ColumnLayout {
@@ -217,62 +255,93 @@ PanelWindow {
                         Item { Layout.fillWidth: true }
                         Text { text: Math.floor(QuickSettingsService.brightness * 100) + "%"; color: Theme.textSub; font.pixelSize: 11 }
                     }
-                    Slider { Layout.fillWidth: true; value: QuickSettingsService.brightness; onMoved: QuickSettingsService.setBrightness(value) }
+                    SliderCustom { Layout.fillWidth: true; value: QuickSettingsService.brightness; onMoved: QuickSettingsService.setBrightness(value); fillColor: Theme.orange }
                 }
 
                 RowLayout {
-                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 10
-                    
+                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 0
+
+                    Item { Layout.fillWidth: true }
+
                     // Wi-Fi
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.wifiEnabled ? Theme.primary : Theme.bgSurface
-                        RowLayout {
-                            anchors.centerIn: parent; spacing: 6
-                            Text { text: "󰖩"; font.pixelSize: 14; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
-                            Text { text: "Wi-Fi"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain }
+                        width: 50; height: 50; radius: 25
+                        color: QuickSettingsService.wifiEnabled ? Theme.primary : Theme.bgSurface
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰖩"
+                            font.pixelSize: 20
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.wifiEnabled = !QuickSettingsService.wifiEnabled }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleWifi() }
                     }
+
+                    Item { Layout.fillWidth: true }
 
                     // Bluetooth
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.bluetoothEnabled ? Theme.blue : Theme.bgSurface
-                        RowLayout {
-                            anchors.centerIn: parent; spacing: 6
-                            Text { text: "󰂯"; font.pixelSize: 14; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
-                            Text { text: "BT"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain }
+                        width: 50; height: 50; radius: 25
+                        color: QuickSettingsService.bluetoothEnabled ? Theme.blue : Theme.bgSurface
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰂯"
+                            font.pixelSize: 20
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea { anchors.fill: parent; onClicked: QuickSettingsService.bluetoothEnabled = !QuickSettingsService.bluetoothEnabled }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleBluetooth() }
                     }
+
+                    Item { Layout.fillWidth: true }
 
                     // VPN
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10; color: QuickSettingsService.vpnActive ? Theme.orange : Theme.bgSurface
-                        RowLayout {
-                            anchors.centerIn: parent; spacing: 6
-                            Text { text: "󰖂"; font.pixelSize: 14; color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain }
-                            Text { text: "VPN"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain }
+                        width: 50; height: 50; radius: 25
+                        color: QuickSettingsService.vpnActive ? Theme.orange : Theme.bgSurface
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰒍"
+                            font.pixelSize: 20
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea {
-                            anchors.fill: parent;
-                            onClicked: QuickSettingsService.toggleVpn()
-                        }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleVpn() }
                     }
+
+                    Item { Layout.fillWidth: true }
 
                     // Hypridle
                     Rectangle {
-                        Layout.fillWidth: true; height: 50; radius: 10
+                        width: 50; height: 50; radius: 25
                         color: QuickSettingsService.hypridleActive ? Theme.yellow : Theme.bgSurface
-                        RowLayout {
-                            anchors.centerIn: parent; spacing: 6
-                            Text { text: "󰒲"; font.pixelSize: 14; color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain }
-                            Text { text: "Idle"; font.pixelSize: 9; font.bold: true; color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain }
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰤄"
+                            font.pixelSize: 20
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: QuickSettingsService.toggleHypridle()
-                        }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleHypridle() }
                     }
+
+                    Item { Layout.fillWidth: true }
+
+                    // DND (Não Perturbe)
+                    Rectangle {
+                        width: 50; height: 50; radius: 25
+                        color: NotificationService.doNotDisturb ? Theme.red : Theme.bgSurface
+                        Text {
+                            anchors.centerIn: parent
+                            text: NotificationService.doNotDisturb ? "󰂛" : "󰂚"
+                            font.pixelSize: 20
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: NotificationService.doNotDisturb ? Theme.bgMain : Theme.textMain
+                        }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: NotificationService.toggleDND() }
+                    }
+
+                    Item { Layout.fillWidth: true }
                 }
 
                 Rectangle {

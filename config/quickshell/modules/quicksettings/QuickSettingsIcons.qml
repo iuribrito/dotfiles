@@ -48,11 +48,12 @@ Item {
                 font.pixelSize: 14
             }
 
-            // Brilho
+            // Microfone
             Text {
-                text: "󰃠"
-                color: Theme.primary
+                text: QuickSettingsService.micMuted ? "󰍭" : "󰍬"
+                color: QuickSettingsService.micMuted ? Theme.textSub : Theme.primary
                 font.pixelSize: 14
+                font.family: "JetBrainsMono Nerd Font"
             }
         }
     }

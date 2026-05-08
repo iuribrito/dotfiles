@@ -45,6 +45,38 @@ Scope {
         }
     }
 
+    // --- Microfone ---
+    readonly property var source: Pipewire.defaultAudioSource
+
+    PwObjectTracker {
+        objects: [root.source]
+    }
+
+    property real micVolume: source?.audio?.volume ?? 0
+    property bool micMuted: source?.audio?.muted ?? false
+
+    Connections {
+        target: root.source?.audio ?? null
+        function onVolumeChanged() {
+            if (root.source?.audio) root.micVolume = root.source.audio.volume;
+        }
+        function onMutedChanged() {
+            if (root.source?.audio) root.micMuted = root.source.audio.muted;
+        }
+    }
+
+    function setMicVolume(val) {
+        if (source && source.audio) {
+            source.audio.volume = val;
+        }
+    }
+
+    function toggleMicMute() {
+        if (source && source.audio) {
+            source.audio.muted = !source.audio.muted;
+        }
+    }
+
     // --- Brilho (Mantendo o que funcionou) ---
     property real brightness: 0.0
     
@@ -79,6 +111,8 @@ Scope {
             root.updateBrightness();
             root.updateVpnStatus();
             root.updateHypridleStatus();
+            root.updateWifiStatus();
+            root.updateBluetoothStatus();
         }
     }
 
@@ -87,6 +121,8 @@ Scope {
             root.updateBrightness();
             root.updateVpnStatus();
             root.updateHypridleStatus();
+            root.updateWifiStatus();
+            root.updateBluetoothStatus();
         }
     }
 
@@ -101,20 +137,24 @@ Scope {
     property bool vpnActive: false
     property string vpnStatus: "unknown"
     readonly property string vpnUUID: "da890faa-1b3a-448a-bb74-157329793fb3"
+    property bool vpnUserAction: false
+
+    onVpnActiveChanged: {
+        if (!vpnActive && !vpnUserAction) {
+            Quickshell.execDetached(["notify-send", "-u", "critical", "-a", "Quickshell",
+                "-i", "network-vpn-disconnected-symbolic",
+                "VPN Desconectada", "A conexão VPN caiu inesperadamente."]);
+        }
+    }
 
     Process {
         id: vpnStatusProc
-        command: ["sh", "-c", "nmcli -g GENERAL.STATE con show " + root.vpnUUID + " 2>/dev/null || echo 'deactivated'"]
+        command: ["sh", "-c", "nmcli -g UUID con show --active 2>/dev/null | grep -qF " + root.vpnUUID + " && echo activated || echo deactivated"]
         stdout: SplitParser {
             onRead: data => {
                 const status = data.trim().toLowerCase();
                 root.vpnStatus = status;
-                // Atualiza a propriedade que o botão usa
-                if (status === "activated") {
-                    root.vpnActive = true;
-                } else if (status === "deactivated" || status === "") {
-                    root.vpnActive = false;
-                }
+                root.vpnActive = status === "activated";
             }
         }
     }
@@ -127,24 +167,37 @@ Scope {
     function toggleVpn() {
         const isCurrentlyActive = root.vpnActive;
         const cmd = isCurrentlyActive ? "down" : "up";
-        
-        // Feedback visual imediato: se estamos desligando, já assume cinza
+
+        root.vpnUserAction = true;
         if (isCurrentlyActive) root.vpnActive = false;
-        
+
         root.vpnStatus = isCurrentlyActive ? "deactivating" : "activating";
         Quickshell.execDetached(["nmcli", "connection", cmd, root.vpnUUID]);
-        
-        // Polling para confirmar o estado real após a ação
+
         let attempts = 0;
+        let notified = false;
         let timer = Qt.createQmlObject("import QtQuick; Timer { interval: 500; repeat: true }", root);
         timer.triggered.connect(() => {
             root.updateVpnStatus();
             attempts++;
-            
-            // Para o timer após o estado confirmar a mudança ou 15s
-            if (attempts > 30 || (isCurrentlyActive && root.vpnStatus === "deactivated") || (!isCurrentlyActive && root.vpnStatus === "activated")) {
+
+            const connected = !isCurrentlyActive && root.vpnStatus === "activated";
+            const disconnected = isCurrentlyActive && root.vpnStatus === "deactivated";
+            const timedOut = attempts > 30;
+
+            if (!notified && (connected || disconnected || timedOut)) {
+                notified = true;
                 timer.stop();
                 timer.destroy();
+                root.vpnUserAction = false;
+
+                if (timedOut && !connected && !disconnected) {
+                    Quickshell.execDetached(["notify-send", "-u", "critical", "-a", "Quickshell", "-i", "network-vpn-symbolic", "VPN", "Tempo esgotado. Verifique a conexão."]);
+                } else if (connected) {
+                    Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "network-vpn-symbolic", "VPN Conectada", "Conexão VPN estabelecida com sucesso."]);
+                } else {
+                    Quickshell.execDetached(["notify-send", "-u", "normal", "-a", "Quickshell", "-i", "network-vpn-disconnected-symbolic", "VPN Desconectada", "Conexão VPN encerrada."]);
+                }
             }
         });
         timer.start();
@@ -178,14 +231,59 @@ Scope {
         }
     }
 
-    // --- Outros ---
-    property bool wifiEnabled: true
-    property bool bluetoothEnabled: true
+    // --- WiFi ---
+    property bool wifiEnabled: false
     property bool panelOpen: false
 
+    Process {
+        id: wifiStatusProc
+        command: ["sh", "-c", "nmcli radio wifi"]
+        stdout: SplitParser {
+            onRead: data => {
+                root.wifiEnabled = data.trim() === "enabled";
+            }
+        }
+    }
+
+    function updateWifiStatus() {
+        wifiStatusProc.running = false;
+        wifiStatusProc.running = true;
+    }
+
+    function toggleWifi() {
+        const next = !root.wifiEnabled;
+        root.wifiEnabled = next;
+        Quickshell.execDetached(["nmcli", "radio", "wifi", next ? "on" : "off"]);
+    }
+
+    // --- Bluetooth ---
+    property bool bluetoothEnabled: false
+
+    Process {
+        id: bluetoothStatusProc
+        command: ["sh", "-c", "bluetoothctl show | grep -c 'Powered: yes'"]
+        stdout: SplitParser {
+            onRead: data => {
+                root.bluetoothEnabled = parseInt(data.trim()) > 0;
+            }
+        }
+    }
+
+    function updateBluetoothStatus() {
+        bluetoothStatusProc.running = false;
+        bluetoothStatusProc.running = true;
+    }
+
+    function toggleBluetooth() {
+        const next = !root.bluetoothEnabled;
+        root.bluetoothEnabled = next;
+        Quickshell.execDetached(["bluetoothctl", "power", next ? "on" : "off"]);
+    }
+
     Component.onCompleted: {
-        console.log("[DEBUG] Serviço QuickSettings pronto.");
         root.updateBrightness();
         root.updateHypridleStatus();
+        root.updateWifiStatus();
+        root.updateBluetoothStatus();
     }
 }

@@ -9,6 +9,7 @@ import "modules/notifications" as Notify
 import "modules/powermenu" as Power
 import "modules/quicksettings" as QS
 import "modules/overview" as Overview
+import "modules/launcher" as Launcher
 
 ShellRoot {
     id: root
@@ -75,6 +76,13 @@ ShellRoot {
     Variants {
         model: Quickshell.screens
         delegate: Overview.OverviewPanel {
+            modelData: modelData
+        }
+    }
+
+    Variants {
+        model: Quickshell.screens
+        delegate: Launcher.LauncherPanel {
             modelData: modelData
         }
     }

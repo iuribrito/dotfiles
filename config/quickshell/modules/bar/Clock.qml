@@ -189,9 +189,12 @@ Item {
                 Rectangle {
                     id: containerBg
                     anchors.fill: parent
-                    anchors.topMargin: -20
                     color: Theme.bgMainAlpha
-                    radius: 20
+
+                    topLeftRadius: 0
+                    bottomLeftRadius: 20
+                    topRightRadius: 0
+                    bottomRightRadius: 20
                 }
 
                 // --- VARIÁVEIS DE NAVEGAÇÃO ---

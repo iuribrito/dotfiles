@@ -15,6 +15,7 @@ PanelWindow {
         top: true
         right: true
     }
+    margins.top: 10
 
     implicitWidth: 320
     implicitHeight: content.height + 20

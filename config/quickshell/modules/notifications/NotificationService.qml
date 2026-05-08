@@ -8,11 +8,19 @@ QtObject {
 
     property list<Notification> notifications: []
     property var history: []
+    property bool doNotDisturb: false
+
+    function toggleDND() {
+        root.doNotDisturb = !root.doNotDisturb;
+    }
 
     readonly property NotificationServer server: NotificationServer {
         onNotification: (notification) => {
             notification.tracked = true;
-            root.notifications = [notification, ...root.notifications];
+
+            if (!root.doNotDisturb) {
+                root.notifications = [notification, ...root.notifications];
+            }
 
             root.history = [{
                 appName: notification.appName || "",
