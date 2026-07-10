@@ -12,7 +12,15 @@ Item {
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
-        onClicked: QuickSettingsService.panelOpen = !QuickSettingsService.panelOpen
+        onClicked: {
+            const clickedScreen = root.QsWindow.window?.screen
+            if (QuickSettingsService.panelOpen && QuickSettingsService.activeScreen === clickedScreen) {
+                QuickSettingsService.panelOpen = false
+            } else {
+                QuickSettingsService.activeScreen = clickedScreen
+                QuickSettingsService.panelOpen = true
+            }
+        }
     }
 
     Rectangle {

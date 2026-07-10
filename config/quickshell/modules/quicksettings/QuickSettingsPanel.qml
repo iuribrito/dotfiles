@@ -13,6 +13,8 @@ PanelWindow {
     property var modelData: null
     screen: modelData
 
+    readonly property bool isActive: QuickSettingsService.panelOpen && QuickSettingsService.activeScreen === modelData
+
     WlrLayershell.namespace: "quicksettings"
     WlrLayershell.layer: WlrLayer.Top
     exclusiveZone: 0
@@ -25,7 +27,7 @@ PanelWindow {
         right: true
     }
     
-    visible: QuickSettingsService.panelOpen || container.height > 0
+    visible: root.isActive || container.height > 0
     color: "transparent"
 
     // Área que fecha o painel ao clicar fora
@@ -37,7 +39,7 @@ PanelWindow {
     // A MÁGICA: Define qual parte da janela recebe cliques
     // Se estiver aberto, a tela toda recebe clique (para fechar ao clicar fora).
     // Se estiver fechando, apenas o painel recebe clique.
-    mask: QuickSettingsService.panelOpen ? null : clickRegion
+    mask: root.isActive ? null : clickRegion
 
     Region {
         id: clickRegion
@@ -50,7 +52,7 @@ PanelWindow {
         anchors.top: parent.top
         anchors.right: parent.right
         width: 450
-        height: 600
+        height: parent.height
 
         // heightProxy quebra o binding loop:
         // PropertyChanges binding para mainLayout.implicitHeight (filho de container) faz o engine
@@ -64,7 +66,7 @@ PanelWindow {
         }
         Component.onCompleted: heightProxy.value = mainLayout.implicitHeight
 
-        state: QuickSettingsService.panelOpen ? "open" : "closed"
+        state: root.isActive ? "open" : "closed"
 
         states: [
             State {
@@ -174,6 +176,10 @@ PanelWindow {
             anchors.top: parent.top
             
             height: 0
+            Behavior on height {
+                enabled: root.isActive
+                NumberAnimation { duration: 250; easing.type: Easing.OutQuart }
+            }
             clip: true
 
             Rectangle {
@@ -259,50 +265,106 @@ PanelWindow {
                 }
 
                 RowLayout {
-                    Layout.fillWidth: true; Layout.leftMargin: 25; Layout.rightMargin: 25; spacing: 0
+                    Layout.fillWidth: true; Layout.leftMargin: 15; Layout.rightMargin: 15; spacing: 0
 
                     Item { Layout.fillWidth: true }
 
                     // Wi-Fi
                     Rectangle {
-                        width: 50; height: 50; radius: 25
+                        width: 44; height: 44; radius: 22
                         color: QuickSettingsService.wifiEnabled ? Theme.primary : Theme.bgSurface
+
                         Text {
-                            anchors.centerIn: parent
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 6
                             text: "󰖩"
-                            font.pixelSize: 20
+                            font.pixelSize: 17
                             font.family: "JetBrainsMono Nerd Font"
                             color: QuickSettingsService.wifiEnabled ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleWifi() }
+                        Rectangle {
+                            x: 10; y: 29; width: parent.width - 20; height: 1
+                            color: QuickSettingsService.wifiEnabled ? Qt.rgba(0,0,0,0.25) : Theme.bgHover
+                        }
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 31
+                            text: QuickSettingsService.wifiExpanded ? "󰅃" : "󰅀"
+                            font.pixelSize: 8
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.wifiEnabled ? Qt.rgba(0,0,0,0.5) : Theme.textMuted
+                        }
+                        MouseArea {
+                            anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
+                            height: 29; cursorShape: Qt.PointingHandCursor
+                            onClicked: QuickSettingsService.toggleWifi()
+                        }
+                        MouseArea {
+                            anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right
+                            height: 15; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                const expand = !QuickSettingsService.wifiExpanded;
+                                QuickSettingsService.wifiExpanded = expand;
+                                QuickSettingsService.bluetoothExpanded = false;
+                                if (expand) QuickSettingsService.scanWifi();
+                            }
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
 
                     // Bluetooth
                     Rectangle {
-                        width: 50; height: 50; radius: 25
+                        width: 44; height: 44; radius: 22
                         color: QuickSettingsService.bluetoothEnabled ? Theme.blue : Theme.bgSurface
+
                         Text {
-                            anchors.centerIn: parent
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 6
                             text: "󰂯"
-                            font.pixelSize: 20
+                            font.pixelSize: 17
                             font.family: "JetBrainsMono Nerd Font"
                             color: QuickSettingsService.bluetoothEnabled ? Theme.bgMain : Theme.textMain
                         }
-                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleBluetooth() }
+                        Rectangle {
+                            x: 10; y: 29; width: parent.width - 20; height: 1
+                            color: QuickSettingsService.bluetoothEnabled ? Qt.rgba(0,0,0,0.25) : Theme.bgHover
+                        }
+                        Text {
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            y: 31
+                            text: QuickSettingsService.bluetoothExpanded ? "󰅃" : "󰅀"
+                            font.pixelSize: 8
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.bluetoothEnabled ? Qt.rgba(0,0,0,0.5) : Theme.textMuted
+                        }
+                        MouseArea {
+                            anchors.top: parent.top; anchors.left: parent.left; anchors.right: parent.right
+                            height: 29; cursorShape: Qt.PointingHandCursor
+                            onClicked: QuickSettingsService.toggleBluetooth()
+                        }
+                        MouseArea {
+                            anchors.bottom: parent.bottom; anchors.left: parent.left; anchors.right: parent.right
+                            height: 15; cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                const expand = !QuickSettingsService.bluetoothExpanded;
+                                QuickSettingsService.bluetoothExpanded = expand;
+                                QuickSettingsService.wifiExpanded = false;
+                                if (expand) QuickSettingsService.scanBluetooth();
+                            }
+                        }
                     }
 
                     Item { Layout.fillWidth: true }
 
                     // VPN
                     Rectangle {
-                        width: 50; height: 50; radius: 25
+                        width: 44; height: 44; radius: 22
                         color: QuickSettingsService.vpnActive ? Theme.orange : Theme.bgSurface
                         Text {
                             anchors.centerIn: parent
                             text: "󰒍"
-                            font.pixelSize: 20
+                            font.pixelSize: 18
                             font.family: "JetBrainsMono Nerd Font"
                             color: QuickSettingsService.vpnActive ? Theme.bgMain : Theme.textMain
                         }
@@ -313,12 +375,12 @@ PanelWindow {
 
                     // Hypridle
                     Rectangle {
-                        width: 50; height: 50; radius: 25
+                        width: 44; height: 44; radius: 22
                         color: QuickSettingsService.hypridleActive ? Theme.yellow : Theme.bgSurface
                         Text {
                             anchors.centerIn: parent
-                            text: "󰤄"
-                            font.pixelSize: 20
+                            text: ""
+                            font.pixelSize: 18
                             font.family: "JetBrainsMono Nerd Font"
                             color: QuickSettingsService.hypridleActive ? Theme.bgMain : Theme.textMain
                         }
@@ -329,12 +391,12 @@ PanelWindow {
 
                     // DND (Não Perturbe)
                     Rectangle {
-                        width: 50; height: 50; radius: 25
+                        width: 44; height: 44; radius: 22
                         color: NotificationService.doNotDisturb ? Theme.red : Theme.bgSurface
                         Text {
                             anchors.centerIn: parent
                             text: NotificationService.doNotDisturb ? "󰂛" : "󰂚"
-                            font.pixelSize: 20
+                            font.pixelSize: 18
                             font.family: "JetBrainsMono Nerd Font"
                             color: NotificationService.doNotDisturb ? Theme.bgMain : Theme.textMain
                         }
@@ -342,6 +404,162 @@ PanelWindow {
                     }
 
                     Item { Layout.fillWidth: true }
+
+                    // Hyprsunset
+                    Rectangle {
+                        width: 44; height: 44; radius: 22
+                        color: QuickSettingsService.hyprsunsetActive ? Theme.orangeTokyo : Theme.bgSurface
+                        Text {
+                            anchors.centerIn: parent
+                            text: "󰖔"
+                            font.pixelSize: 18
+                            font.family: "JetBrainsMono Nerd Font"
+                            color: QuickSettingsService.hyprsunsetActive ? Theme.bgMain : Theme.textMain
+                        }
+                        MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: QuickSettingsService.toggleHyprsunset() }
+                    }
+
+                    Item { Layout.fillWidth: true }
+                }
+
+                // WiFi list
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 25; Layout.rightMargin: 25
+                    spacing: 4
+                    visible: QuickSettingsService.wifiExpanded
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "WI-FI"; color: Theme.primary; font.pixelSize: 11; font.bold: true; font.letterSpacing: 2; opacity: 0.6 }
+                        Item { Layout.fillWidth: true }
+                        MouseArea {
+                            width: 20; height: 20; cursorShape: Qt.PointingHandCursor
+                            onClicked: QuickSettingsService.scanWifi()
+                            Text { anchors.centerIn: parent; text: "󰑐"; color: Theme.textMuted; font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font" }
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                        implicitHeight: QuickSettingsService.wifiNetworks.length === 0
+                            ? 30
+                            : Math.min(QuickSettingsService.wifiNetworks.length * 46 - 6, 220)
+                        clip: true
+
+                        Text {
+                            visible: QuickSettingsService.wifiNetworks.length === 0
+                            anchors.centerIn: parent
+                            text: "Buscando redes..."; color: Theme.textMuted; font.pixelSize: 12; opacity: 0.5
+                        }
+
+                        ListView {
+                            anchors.fill: parent
+                            visible: QuickSettingsService.wifiNetworks.length > 0
+                            model: QuickSettingsService.wifiNetworks
+                            spacing: 6
+                            clip: true
+                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                            delegate: Rectangle {
+                                width: ListView.view.width; height: 40; radius: 8
+                                color: modelData.connected ? Theme.primary : Theme.bgSurface
+                                RowLayout {
+                                    anchors.fill: parent; anchors.margins: 10; spacing: 8
+                                    Text {
+                                        text: modelData.signal > 70 ? "󰤨" : modelData.signal > 40 ? "󰤥" : "󰤢"
+                                        font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"
+                                        color: modelData.connected ? Theme.bgMain : Theme.textSub
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true; text: modelData.ssid
+                                        font.pixelSize: 12; elide: Text.ElideRight
+                                        color: modelData.connected ? Theme.bgMain : Theme.textMain
+                                    }
+                                    Text {
+                                        text: modelData.signal + "%"; font.pixelSize: 10
+                                        color: modelData.connected ? Qt.rgba(0,0,0,0.5) : Theme.textMuted
+                                    }
+                                }
+                                MouseArea {
+                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                    onClicked: { if (!modelData.connected) QuickSettingsService.connectWifi(modelData.ssid) }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Bluetooth list
+                ColumnLayout {
+                    Layout.fillWidth: true
+                    Layout.leftMargin: 25; Layout.rightMargin: 25
+                    spacing: 4
+                    visible: QuickSettingsService.bluetoothExpanded
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Text { text: "BLUETOOTH"; color: Theme.blue; font.pixelSize: 11; font.bold: true; font.letterSpacing: 2; opacity: 0.6 }
+                        Item { Layout.fillWidth: true }
+                        MouseArea {
+                            width: 20; height: 20; cursorShape: Qt.PointingHandCursor
+                            onClicked: QuickSettingsService.scanBluetooth()
+                            Text { anchors.centerIn: parent; text: "󰑐"; color: Theme.textMuted; font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font" }
+                        }
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
+                        implicitHeight: QuickSettingsService.bluetoothDevices.length === 0
+                            ? 30
+                            : Math.min(QuickSettingsService.bluetoothDevices.length * 46 - 6, 220)
+                        clip: true
+
+                        Text {
+                            visible: QuickSettingsService.bluetoothDevices.length === 0
+                            anchors.centerIn: parent
+                            text: "Buscando dispositivos..."; color: Theme.textMuted; font.pixelSize: 12; opacity: 0.5
+                        }
+
+                        ListView {
+                            anchors.fill: parent
+                            visible: QuickSettingsService.bluetoothDevices.length > 0
+                            model: QuickSettingsService.bluetoothDevices
+                            spacing: 6
+                            clip: true
+                            ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
+                            delegate: Rectangle {
+                                width: ListView.view.width; height: 40; radius: 8
+                                color: modelData.connected ? Theme.blue : Theme.bgSurface
+
+                                RowLayout {
+                                    anchors.fill: parent; anchors.margins: 10; spacing: 8
+                                    Text {
+                                        text: modelData.connected ? "󰂱" : "󰂯"
+                                        font.pixelSize: 14; font.family: "JetBrainsMono Nerd Font"
+                                        color: modelData.connected ? Theme.bgMain : Theme.textSub
+                                    }
+                                    Text {
+                                        Layout.fillWidth: true; text: modelData.name
+                                        font.pixelSize: 12; elide: Text.ElideRight
+                                        color: modelData.connected ? Theme.bgMain : Theme.textMain
+                                    }
+                                }
+
+                                Rectangle {
+                                    visible: modelData.connected
+                                    width: 8; height: 8; radius: 4
+                                    color: Theme.green
+                                    anchors.right: parent.right; anchors.top: parent.top
+                                    anchors.rightMargin: 8; anchors.topMargin: 8
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent; cursorShape: Qt.PointingHandCursor
+                                    onClicked: QuickSettingsService.connectBluetooth(modelData.mac, modelData.connected)
+                                }
+                            }
+                        }
+                    }
                 }
 
                 Rectangle {

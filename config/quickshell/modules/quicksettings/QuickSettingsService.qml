@@ -111,6 +111,7 @@ Scope {
             root.updateBrightness();
             root.updateVpnStatus();
             root.updateHypridleStatus();
+            root.updateHyprsunsetStatus();
             root.updateWifiStatus();
             root.updateBluetoothStatus();
         }
@@ -121,6 +122,7 @@ Scope {
             root.updateBrightness();
             root.updateVpnStatus();
             root.updateHypridleStatus();
+            root.updateHyprsunsetStatus();
             root.updateWifiStatus();
             root.updateBluetoothStatus();
         }
@@ -203,6 +205,34 @@ Scope {
         timer.start();
     }
 
+    // --- Hyprsunset ---
+    property bool hyprsunsetActive: false
+
+    Process {
+        id: hyprsunsetCheckProc
+        command: ["sh", "-c", "pgrep -x hyprsunset > /dev/null && echo running || echo stopped"]
+        stdout: SplitParser {
+            onRead: data => {
+                root.hyprsunsetActive = data.trim() === "running";
+            }
+        }
+    }
+
+    function updateHyprsunsetStatus() {
+        hyprsunsetCheckProc.running = false;
+        hyprsunsetCheckProc.running = true;
+    }
+
+    function toggleHyprsunset() {
+        if (root.hyprsunsetActive) {
+            root.hyprsunsetActive = false;
+            Quickshell.execDetached(["pkill", "hyprsunset"]);
+        } else {
+            root.hyprsunsetActive = true;
+            Quickshell.execDetached(["hyprsunset", "-t", "3500"]);
+        }
+    }
+
     // --- Hypridle ---
     property bool hypridleActive: false
 
@@ -234,6 +264,7 @@ Scope {
     // --- WiFi ---
     property bool wifiEnabled: false
     property bool panelOpen: false
+    property var activeScreen: null
 
     Process {
         id: wifiStatusProc
@@ -280,9 +311,101 @@ Scope {
         Quickshell.execDetached(["bluetoothctl", "power", next ? "on" : "off"]);
     }
 
+    // --- WiFi Networks List ---
+    property bool wifiExpanded: false
+    property var wifiNetworks: []
+    property var wifiScanBuffer: []
+
+    Process {
+        id: wifiListProc
+        command: ["sh", "-c", "nmcli -t -f SSID,SIGNAL,ACTIVE device wifi list 2>/dev/null | head -20"]
+        stdout: SplitParser {
+            onRead: data => {
+                const line = data.trim();
+                if (!line) return;
+                const lastColon = line.lastIndexOf(":");
+                if (lastColon === -1) return;
+                const active = line.substring(lastColon + 1).trim();
+                const secondLastColon = line.lastIndexOf(":", lastColon - 1);
+                if (secondLastColon === -1) return;
+                const signal = parseInt(line.substring(secondLastColon + 1, lastColon));
+                const ssid = line.substring(0, secondLastColon);
+                if (!ssid || isNaN(signal)) return;
+                const temp = root.wifiScanBuffer.slice();
+                if (!temp.find(n => n.ssid === ssid)) {
+                    temp.push({ ssid: ssid, signal: signal, connected: active === "yes" });
+                }
+                root.wifiScanBuffer = temp;
+            }
+        }
+        onRunningChanged: {
+            if (!running) {
+                root.wifiNetworks = root.wifiScanBuffer.slice().sort((a, b) => b.signal - a.signal);
+            }
+        }
+    }
+
+    Timer { id: wifiRescanTimer; interval: 3000; repeat: false; onTriggered: root.scanWifi() }
+
+    function scanWifi() {
+        root.wifiScanBuffer = [];
+        wifiListProc.running = false;
+        wifiListProc.running = true;
+    }
+
+    function connectWifi(ssid) {
+        Quickshell.execDetached(["nmcli", "device", "wifi", "connect", ssid]);
+        wifiRescanTimer.restart();
+    }
+
+    // --- Bluetooth Devices List ---
+    property bool bluetoothExpanded: false
+    property var bluetoothDevices: []
+    property var btScanBuffer: []
+
+    Process {
+        id: btListProc
+        command: ["sh", "-c", "bluetoothctl devices 2>/dev/null | while IFS= read -r line; do mac=$(echo \"$line\" | awk '{print $2}'); info=$(bluetoothctl info \"$mac\" 2>/dev/null); name=$(echo \"$info\" | grep -m1 'Name:' | sed 's/.*Name: //'); connected=$(echo \"$info\" | grep -c 'Connected: yes'); printf \"%s\\t%s\\t%s\\n\" \"$mac\" \"$name\" \"$connected\"; done"]
+        stdout: SplitParser {
+            onRead: data => {
+                const line = data.trim();
+                if (!line) return;
+                const parts = line.split("\t");
+                if (parts.length >= 2 && parts[0].length >= 10) {
+                    const temp = root.btScanBuffer.slice();
+                    temp.push({ mac: parts[0].trim(), name: (parts[1] || parts[0]).trim(), connected: parseInt(parts[2] || "0") > 0 });
+                    root.btScanBuffer = temp;
+                }
+            }
+        }
+        onRunningChanged: {
+            if (!running) {
+                root.bluetoothDevices = root.btScanBuffer.slice();
+            }
+        }
+    }
+
+    Timer { id: btRescanTimer; interval: 3000; repeat: false; onTriggered: root.scanBluetooth() }
+
+    function scanBluetooth() {
+        root.btScanBuffer = [];
+        btListProc.running = false;
+        btListProc.running = true;
+    }
+
+    function connectBluetooth(mac, isConnected) {
+        if (isConnected) {
+            Quickshell.execDetached(["bluetoothctl", "disconnect", mac]);
+        } else {
+            Quickshell.execDetached(["bluetoothctl", "connect", mac]);
+        }
+        btRescanTimer.restart();
+    }
+
     Component.onCompleted: {
         root.updateBrightness();
         root.updateHypridleStatus();
+        root.updateHyprsunsetStatus();
         root.updateWifiStatus();
         root.updateBluetoothStatus();
     }

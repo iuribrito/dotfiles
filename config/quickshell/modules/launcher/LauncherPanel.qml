@@ -10,15 +10,10 @@ Scope {
     id: launcherScope
     required property var modelData
 
-    GlobalShortcut {
-        name: "launcherToggle"
-        description: "Toggle app launcher"
-        onPressed: LauncherState.isOpen = !LauncherState.isOpen
-    }
-
     PanelWindow {
         id: panelRoot
-        visible: LauncherState.isOpen
+        readonly property bool isFocusedScreen: Hyprland.focusedMonitor?.name === launcherScope.modelData.name
+        visible: LauncherState.isOpen && isFocusedScreen
         screen: launcherScope.modelData
 
         WlrLayershell.namespace: "quickshell:launcher"
@@ -180,7 +175,7 @@ Scope {
                                 anchors { fill: parent; leftMargin: 2; rightMargin: 2 }
                                 radius: 8
                                 color: (index === appList.currentIndex || row.containsMouse)
-                                    ? Theme.bgSurface : "transparent"
+                                    ? Theme.orangeAlt : "transparent"
                                 Behavior on color { ColorAnimation { duration: 80 } }
 
                                 RowLayout {
@@ -228,7 +223,8 @@ Scope {
                                         Text {
                                             Layout.fillWidth: true
                                             text: modelData.name
-                                            color: Theme.textMain
+                                            color: (index === appList.currentIndex || row.containsMouse)
+                                            ? Theme.bgMain : Theme.textMain
                                             font.pixelSize: 14
                                             elide: Text.ElideRight
                                         }
