@@ -8,12 +8,6 @@ Scope {
     id: overviewScope
     required property var modelData
 
-    GlobalShortcut {
-        name: "overviewToggle"
-        description: "Toggle window overview"
-        onPressed: GlobalStates.overviewOpen = !GlobalStates.overviewOpen
-    }
-
     PanelWindow {
         id: panelRoot
 

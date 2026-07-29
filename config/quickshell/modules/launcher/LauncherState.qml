@@ -2,11 +2,18 @@ pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import Quickshell.Hyprland
 
 Singleton {
     id: root
 
     property bool isOpen: false
+
+    GlobalShortcut {
+        name: "launcherToggle"
+        description: "Toggle app launcher"
+        onPressed: root.isOpen = !root.isOpen
+    }
     property var usageCounts: ({})
 
     readonly property string usagePath: Quickshell.env("HOME") + "/.config/quickshell/launcher_usage.json"

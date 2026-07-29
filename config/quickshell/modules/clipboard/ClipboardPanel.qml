@@ -30,6 +30,7 @@ Scope {
             else {
                 searchField.text = ""
                 itemList.currentIndex = 0
+                itemList.contentY = 0
             }
         }
 
@@ -47,7 +48,10 @@ Scope {
                 )
             }
 
-            onFilteredEntriesChanged: itemList.currentIndex = 0
+            onFilteredEntriesChanged: {
+                itemList.currentIndex = 0
+                itemList.contentY = 0
+            }
 
             MouseArea {
                 anchors.fill: parent
