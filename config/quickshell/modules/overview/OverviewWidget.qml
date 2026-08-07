@@ -104,7 +104,7 @@ Item {
                     onClicked: {
                         if (root.draggingTargetWorkspace === -1) {
                             GlobalStates.overviewOpen = false
-                            Hyprland.dispatch("workspace " + wsTile.wsId)
+                            Hyprland.dispatch(`hl.dsp.focus({workspace=${wsTile.wsId}})`)
                         }
                     }
                 }
@@ -203,7 +203,11 @@ Item {
                         root.draggingTargetWorkspace = -1
 
                         if (target !== -1 && target !== fromWs) {
-                            Hyprland.dispatch("movetoworkspacesilent " + target + ", address:" + (winWidget.windowData?.address ?? ""))
+                            // hl.dsp.window.move não aceita seletor de janela — só atua na focada,
+                            // por isso focamos primeiro e movemos a seguir.
+                            const addr = winWidget.windowData?.address ?? ""
+                            Hyprland.dispatch(`hl.dsp.focus({window="${addr}"})`)
+                            Hyprland.dispatch(`hl.dsp.window.move({workspace=${target}})`)
                         }
                         resetPosTimer.restart()
                     }
@@ -212,10 +216,10 @@ Item {
                         if (!winWidget.windowData) return
                         if (event.button === Qt.LeftButton) {
                             GlobalStates.overviewOpen = false
-                            Hyprland.dispatch("focuswindow address:" + winWidget.windowData.address)
+                            Hyprland.dispatch(`hl.dsp.focus({window="${winWidget.windowData.address}"})`)
                             event.accepted = true
                         } else if (event.button === Qt.MiddleButton) {
-                            Hyprland.dispatch("closewindow address:" + winWidget.windowData.address)
+                            Hyprland.dispatch(`hl.dsp.window.close({window="${winWidget.windowData.address}"})`)
                             event.accepted = true
                         }
                     }

@@ -64,7 +64,7 @@ Row {
                     if (mouse.button === Qt.RightButton)
                         GlobalStates.overviewOpen = !GlobalStates.overviewOpen
                     else
-                        Hyprland.dispatch(`workspace ${wsNumber}`)
+                        Hyprland.dispatch(`hl.dsp.focus({workspace=${wsNumber}})`)
                 }
             }
         }

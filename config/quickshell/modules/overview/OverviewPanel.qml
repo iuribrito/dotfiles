@@ -32,15 +32,15 @@ Scope {
                     GlobalStates.overviewOpen = false
                     event.accepted = true
                 } else if (event.key === Qt.Key_Tab) {
-                    Hyprland.dispatch("workspace r+1")
+                    Hyprland.dispatch(`hl.dsp.focus({workspace="r+1"})`)
                     event.accepted = true
                 } else if (event.key === Qt.Key_Backtab) {
-                    Hyprland.dispatch("workspace r-1")
+                    Hyprland.dispatch(`hl.dsp.focus({workspace="r-1"})`)
                     event.accepted = true
                 } else if (event.key === Qt.Key_Left) {
-                    Hyprland.dispatch("workspace r-1")
+                    Hyprland.dispatch(`hl.dsp.focus({workspace="r-1"})`)
                 } else if (event.key === Qt.Key_Right) {
-                    Hyprland.dispatch("workspace r+1")
+                    Hyprland.dispatch(`hl.dsp.focus({workspace="r+1"})`)
                 }
             }
 
