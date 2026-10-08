@@ -160,12 +160,6 @@ duration_ms = 1000
 curve = "hyprDefault"
 duration_ms = 600
 
-# Scratchpad "chat" com cara de special workspace: ocupa a área toda e
-# escurece o fundo como o dim_special (0.2) do Hyprland.
-[animation.scratchpad]
-maximize = true
-dim = 0.2
-
 # ==============================================================================
 # Input
 
@@ -190,19 +184,21 @@ size = 24
 # Layout
 
 [layout]
-mode = "dwindle"
+# Scrolling = estilo niri: cada janela nova vira uma coluna à direita da focada.
+# Para voltar ao comportamento do Hyprland, troque por "dwindle".
+mode = "scrolling"
 gap = 10   # gaps_in 5 (= 10 entre janelas) e gaps_out 10
+# Larguras percorridas com Super + R (preset-column-widths do niri).
+extent_presets = [0.333, 0.5, 0.667]
+
+[layout.scrolling]
+# Colunas novas abrem com metade da tela, como o default-column-width do niri.
+default_extent_fraction = 0.5
 
 [layout.dwindle]
 preserve_split = true
 # Padrão do Hyprland (force_split = 0): a nova janela abre do lado do cursor.
 new_toward_cursor = true
-
-# ==============================================================================
-# Scratchpad (special:chat do Hyprland)
-
-[[scratchpad]]
-name = "chat"
 
 # ==============================================================================
 # Window rules
@@ -211,11 +207,6 @@ name = "chat"
 [[window_rule]]
 blur = true
 blur_popups = true
-
-# Cinny: abre escondido no scratchpad "chat" (special:chat silent).
-[[window_rule]]
-match.app_id = "^(cinny)$"
-default_scratchpad = "chat"
 
 # Noctalia Settings
 [[window_rule]]
@@ -286,16 +277,13 @@ blur_popups = true
 
 "Mod+M" = { action = "spawn:~/.config/umbriel/bin/toggle-monitors.sh", repeat = false }
 
-# Mostrar/esconder o Cinny (scratchpad)
-"Mod+C" = "scratchpad-toggle:chat"
-
 # Screenshot -> Satty
 "Mod+P" = { action = "spawn:grim -g \"$(slurp)\" - | satty --filename - --early-exit --copy-command \"wl-copy\"", repeat = false }
 "Mod+Shift+P" = { action = "spawn:grim -g \"$(slurp)\" - | satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date +%Y%m%d-%H%M%S).png", repeat = false }
 "Mod+Ctrl+P" = { action = "spawn:~/.config/umbriel/bin/screenshot-window.sh", repeat = false }
 
 # O Umbriel recarrega sozinho ao salvar; isto força e avisa, como no Hyprland.
-"Mod+R" = { action = "spawn:umbriel msg config-reload && notify-send \"Umbriel\" \"Config reloaded\"", repeat = false }
+"Mod+Shift+R" = { action = "spawn:umbriel msg config-reload && notify-send \"Umbriel\" \"Config reloaded\"", repeat = false }
 
 # Kill mode (clique numa janela para matá-la, Esc cancela)
 "Mod+Escape" = { action = "spawn:~/.config/umbriel/bin/kill-window.sh", repeat = false }
@@ -342,6 +330,19 @@ blur_popups = true
 # Percorrer workspaces (e+1 / e-1)
 "Alt+Tab" = "workspace-next"
 "Alt+Shift+Tab" = "workspace-previous"
+
+# Layout scrolling (mesmas teclas do niri)
+"Mod+R" = "window-cycle-primary-extent"
+"Mod+Minus" = "window-modify-primary-extent:-0.1"
+"Mod+Equal" = "window-modify-primary-extent:0.1"
+"Mod+C" = { action = "column-center", repeat = false }
+"Mod+BracketLeft" = "window-consume-or-expel-left"
+"Mod+BracketRight" = "window-consume-or-expel-right"
+"Mod+W" = { action = "column-toggle-tabbed", repeat = false }
+# Botões laterais do mouse com Super: coluna da esquerda/direita (sem o Super
+# eles continuam sendo voltar/avançar no navegador).
+"Mod+MouseBack" = "window-focus-or-output-left"
+"Mod+MouseForward" = "window-focus-or-output-right"
 
 # Extras do Umbriel (teclas livres no Hyprland)
 "Mod+G" = { action = "overview-toggle", repeat = false }
