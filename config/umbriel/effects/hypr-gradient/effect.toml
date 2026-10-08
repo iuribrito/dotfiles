@@ -1,0 +1,6 @@
+# Borda da janela focada em gradiente estático, como o
+# col.active_border = CB1C8Dee -> 460C68ee a 45° do Hyprland.
+[effects.preset.hypr-gradient]
+kind = "border"
+shader = "shader.glsl"
+animated = false

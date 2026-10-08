@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Personal Arch Linux dotfiles for a Wayland desktop built on **Hyprland**, themed **Catppuccin Mocha** throughout. Covers the compositor, a custom **Quickshell** (QML/Qt6) panel/bar, terminal (Foot/WezTerm), shell (Fish), and Tmux. There is no build system — every file here is a config consumed directly by its target application.
+Personal Arch Linux dotfiles for a Wayland desktop that runs on either **Hyprland** or **Umbriel** (both configs are kept in parallel, with the same keybinds), themed **Catppuccin Mocha** throughout. The desktop shell (bar, launcher, notifications, wallpaper, idle, lockscreen, polkit agent) is **Noctalia**, which is configured through its own settings UI, not from this repo. Covers the compositors, a custom **Quickshell** (QML/Qt6) panel/bar, terminal (Foot/WezTerm), shell (Fish), and Tmux. There is no build system — every file here is a config consumed directly by its target application.
 
 ## How Configs Are Applied
 
@@ -12,26 +12,28 @@ Files are deployed via **manual per-directory symlinks** into `~/.config/` (no s
 
 ```
 ~/.config/hypr        -> ~/dotfiles/config/hypr/
+~/.config/umbriel     -> ~/dotfiles/config/umbriel/
 ~/.config/fish        -> ~/dotfiles/config/fish/
 ~/.config/quickshell  -> ~/dotfiles/config/quickshell/
 ```
 
 `.tmux.conf` and `.wezterm.lua` live at the repo root and are meant to be symlinked to `~/.tmux.conf` / `~/.wezterm.lua` the same way. When adding a new app config, follow this pattern: put it under `config/<app>/` and symlink the whole directory (not individual files).
 
-Package list and `yay -S` install command are in `README.md` — consult it before assuming a binary is available (e.g. `satty`, `clipcat`, `quickshell-git`, `ags` are AUR packages).
+Package list and `yay -S` install command are in `README.md` — consult it before assuming a binary is available (e.g. `umbriel-git`, `satty`, `clipcat`, `quickshell-git`, `ags` are AUR packages).
 
 ## Reloading / Testing Changes
 
-- Hyprland: `hyprctl reload` (bound to `$mainMod SHIFT R` in `hyprland.lua`, which also fires a notify-send). Note that reload does **not** re-run autostart (`hl.on("hyprland.start", ...)`) — that only fires once per compositor session, same as the old `exec-once` semantics. To (re)start the panel/wallpaper/idle daemon without logging out, use `hyprctl dispatch 'hl.dsp.exec_cmd("<cmd>")'` (Hyprland 0.56's `hyprctl dispatch` takes a Lua expression, not the old `dispatcher,arg` string).
+- Hyprland: `hyprctl reload` (bound to `$mainMod R` in `hyprland.lua`, which also fires a notify-send). Note that reload does **not** re-run autostart (`hl.on("hyprland.start", ...)`) — that only fires once per compositor session, same as the old `exec-once` semantics. To (re)start an autostarted daemon (e.g. `noctalia`) without logging out, use `hyprctl dispatch 'hl.dsp.exec_cmd("<cmd>")'` (Hyprland 0.56's `hyprctl dispatch` takes a Lua expression, not the old `dispatcher,arg` string).
+- Umbriel: reloads `config.toml` (and its includes) automatically on save; `umbriel msg config-reload` forces it (bound to `Mod+R` with a notify-send). Check edits with `umbriel config validate` before saving. `[general].autostart` and `[environment]` only apply on a new session.
 - Quickshell: hot-reloads on file save; see `config/quickshell/CLAUDE.md` for its own run/reload commands and architecture — read that file before touching anything under `config/quickshell/`.
 - Fish: `source ~/.config/fish/config.fish` or open a new shell.
 - Tmux: `tmux source ~/.tmux.conf`, plugins install via prefix (`Ctrl+Space`) + `I` (TPM).
 
 ## Architecture
 
-### Hyprland config: Lua only, `hyprland.conf` is vestigial
+### Hyprland config: Lua only
 
-`config/hypr/hyprland.lua` is the **active** config. Hyprland 0.55+ deprecated the old hyprlang `.conf` format in favor of Lua (`$XDG_CONFIG_HOME/hypr/hyprland.lua`, using the injected `hl` API), and on this machine (Hyprland 0.56.0) `hyprland.conf` is no longer read at all — confirmed via `hyprctl binds`/`hyprctl getoption` showing the Lua file's values live. `config/hypr/hyprland.conf` is kept only as a historical reference for what used to be configured; do not edit it expecting it to take effect, and do not assume its contents are what's running — always check `hyprland.lua` (or ask `hyprctl`) for current behavior.
+`config/hypr/hyprland.lua` is the config. Hyprland 0.55+ deprecated the old hyprlang `.conf` format in favor of Lua (`$XDG_CONFIG_HOME/hypr/hyprland.lua`, using the injected `hl` API), and on this machine (Hyprland 0.56.0) `hyprland.conf` is no longer read at all. The old `hyprland.conf` was removed; see git history if you need to compare. Always check `hyprland.lua` (or ask `hyprctl`) for current behavior. hyprpaper, hypridle, hyprlock and hyprpolkitagent are no longer used: Noctalia covers wallpaper, idle, lockscreen (`noctalia msg session lock`) and polkit.
 
 The exact `hl.*` API surface isn't fully documented on the public wiki yet (it's very new). The most reliable local sources of truth, in order, are: `/usr/share/hypr/stubs/hl.meta.lua` (an EmmyLua annotation file autogenerated from the installed Hyprland build — authoritative for function/field names and types), `/usr/share/hypr/hyprland.lua` (the shipped example config, showing real call shapes), and grepping `/usr/include/hyprland/src/config/lua/` (installed by the `hyprland-git` package) for things like the window-rule effect name table in `bindings/LuaBindingsInternal.hpp`. The public wiki (`wiki.hypr.land`) is JS-rendered and often fails to fetch usefully via tooling — don't rely on it alone for exact Lua syntax.
 
@@ -41,6 +43,15 @@ A couple of dispatcher calls in `hyprland.lua` are marked `BEST-EFFORT` in comme
 
 Monitor positions + per-workspace-monitor assignment live in `config/hypr/monitors.lua`, itself a **symlink** to either `monitors-home.lua` (external monitor left, laptop right) or `monitors-work.lua` (laptop left, external right); `hyprland.lua` pulls it in via `require("monitors")`. `config/hypr/bin/toggle-monitors.sh` flips that symlink (and, for backward compat, the parallel `.conf` symlink) based on its current target and runs `hyprctl reload`; bound to `$mainMod M`. When editing monitor layout, edit the two `monitors-{home,work}.lua` files, not `monitors.lua` directly (it gets overwritten by the symlink swap). The `monitors-{home,work}.conf` files still exist too but are unused now that `hyprland.conf` isn't loaded.
 
+### Umbriel config
+
+`config/umbriel/config.toml` is a port of `hyprland.lua` (same keybinds, look, animations and rules). The local sources of truth are `umbriel config schema --json` (every accepted key, type and default for the installed build), `umbriel msg --help` (every action), and the user docs at https://docs.noctalia.dev/umbriel/ (also in the AUR package's git clone under `docs/user/`). Notable pieces:
+
+- `monitors.toml` is a **symlink** to `monitors-home.toml` or `monitors-work.toml` (same home/work layouts as Hyprland), included from `config.toml`; besides `[output.*]` tables each profile holds the `Mod+Ctrl+1/2` binds, since Umbriel only moves workspaces between outputs by direction. `bin/toggle-monitors.sh` flips the symlink and runs `umbriel msg config-reload`; bound to `Mod+M`.
+- `effects/hypr-gradient/` is a border shader that recreates Hyprland's gradient `col.active_border`; `colors.border.focused` is only the fallback if it fails to compile (`umbriel effects` shows its state).
+- `bin/kill-window.sh` (click-to-kill, replaces `hyprctl kill`) and `bin/screenshot-window.sh` (replaces `hyprctl activewindow -j`) read window geometry from `umbriel windows --json`.
+- Workspaces are per output in Umbriel, so `Mod+N` targets workspace N of the focused monitor. Hyprland's pseudo/togglesplit have no equivalent and are unbound.
+
 ### Quickshell panel
 
 `config/quickshell/` is a self-contained QML/Qt6 project (top bar, notifications, power menu, quick settings, launcher, overview, clipboard) with its own detailed `config/quickshell/CLAUDE.md`. Read that file directly for its architecture (singleton services, per-screen `Variants`, IPC via `/tmp/qs_powermenu`, theme singleton). `config/quickshell/example/ii/` is a large vendored reference project (by "4end") kept for ideas only — it is not part of the active shell.
@@ -48,5 +59,5 @@ Monitor positions + per-workspace-monitor assignment live in `config/hypr/monito
 ### Cross-app conventions
 
 - **Catppuccin Mocha** is the theme everywhere (Foot, WezTerm, Tmux, Quickshell's `Theme.qml`). When adding a new tool, match this palette rather than introducing a new one.
-- Hyprland keybinds route into Quickshell via its IPC surface rather than shelling out to separate tools: `global = quickshell:launcherToggle`, `quickshell:clipboardToggle`, `quickshell:overviewToggle`, and the named pipe `/tmp/qs_powermenu` for the power menu.
-- Portuguese comments appear in `hyprland.conf` and `README.md` (the user is a Portuguese speaker); keep new comments in the same language as the surrounding file rather than mixing.
+- Keybinds in both compositors route into Noctalia via its IPC (`noctalia msg panel-toggle launcher`, `panel-toggle clipboard`, `volume-up`, `session lock`, …) rather than shelling out to separate tools. Quickshell's IPC surface (`global = quickshell:*`, the named pipe `/tmp/qs_powermenu`) is only used when Quickshell is the active shell, which it currently isn't (commented out in the autostart).
+- Portuguese comments appear in `hyprland.lua`, `config/umbriel/` and `README.md` (the user is a Portuguese speaker); keep new comments in the same language as the surrounding file rather than mixing.

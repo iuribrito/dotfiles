@@ -1,21 +1,20 @@
 # Dotfiles
 
-Configurações de ambiente Linux 100% focadas em **Hyprland** (Wayland), com tema **Catppuccin Mocha**, shell **Fish**, terminal **Foot** / **WezTerm**, multiplexador **Tmux** e bar customizada em **Quickshell**.
+Configurações de ambiente Linux focadas em Wayland, com os compositores **Hyprland** e **Umbriel**, shell gráfico **Noctalia**, tema **Catppuccin Mocha**, shell **Fish**, terminal **Foot** / **WezTerm**, multiplexador **Tmux** e bar customizada em **Quickshell**.
 
 ---
 
 ## 📋 Requisitos & Pacotes de Software (Arch Linux)
 
-Para rodar o ambiente Hyprland corretamente no Arch Linux, instale os pacotes necessários categorizados abaixo.
+Para rodar o ambiente corretamente no Arch Linux, instale os pacotes necessários categorizados abaixo.
 
-### 1. Compositor & Portais Wayland
-- `hyprland` - Compositor Wayland principal
+### 1. Compositores & Portais Wayland
+- `hyprland` - Compositor Wayland
+- `umbriel-git` *(AUR)* - Compositor Wayland (traz o `xdg-desktop-portal-umbriel-git` como dependência)
 - `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` - Portais de integração para Wayland/GTK
 
-### 2. Utilitários Hyprland
-- `hyprpaper` - Gerenciador de papéis de parede
-- `hyprlock` - Tela de bloqueio (`Super + O`)
-- `hypridle` - Daemon de inatividade
+### 2. Shell Gráfico
+- `noctalia` - Barra, launcher (`Super + Space`), notificações, wallpaper, idle, tela de bloqueio (`Super + O`) e agente polkit
 
 ### 3. Interface, Barra, Notificações & Menus
 - `quickshell-git` *(AUR)* - Topbar, menu de energia e quicksettings em QML/Qt6
@@ -73,7 +72,7 @@ cd .. && rm -rf yay
 ### 2. Instalar todos os pacotes (Oficiais + AUR)
 ```bash
 yay -S --needed \
-  hyprland hyprpaper hyprlock hypridle \
+  hyprland umbriel-git noctalia \
   xdg-desktop-portal-hyprland xdg-desktop-portal-gtk \
   foot wezterm fish starship tmux jq \
   dunst fuzzel \

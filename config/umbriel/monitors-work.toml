@@ -1,0 +1,17 @@
+# Notebook à esquerda, monitor externo à direita
+# Modo nativo de cada tela ("preferred" no Hyprland) quando `mode` é omitido.
+
+[output.eDP-1]
+position = [0, 0]
+scale = 1.0
+cyclic_workspaces = true   # Alt + Tab dá a volta, como o e+1 do Hyprland
+
+[output.HDMI-A-1]
+position = [1920, 0]
+scale = 1.0
+cyclic_workspaces = true
+
+# Mover o workspace atual para um monitor específico
+[keybinds]
+"Mod+Ctrl+1" = "workspace-move-to-output-left"    # -> eDP-1
+"Mod+Ctrl+2" = "workspace-move-to-output-right"   # -> HDMI-A-1

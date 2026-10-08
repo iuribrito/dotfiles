@@ -1,0 +1,350 @@
+# Umbriel — portado do hyprland.lua (Hyprland 0.56).
+#
+# Referência: https://docs.noctalia.dev/umbriel/
+# Validar:    umbriel config validate
+# Chaves:     umbriel config schema --json
+#
+# A maioria das mudanças aplica ao salvar. [general].autostart e [environment]
+# exigem reiniciar a sessão.
+
+# ==============================================================================
+# Includes
+
+[include]
+files = [
+  # Monitores (posições + binds que dependem do lado de cada tela).
+  # monitors.toml é um symlink para monitors-home.toml ou monitors-work.toml,
+  # trocado por bin/toggle-monitors.sh (Super + M), igual ao setup do Hyprland.
+  "monitors.toml",
+  # Borda ativa em gradiente (equivalente ao col.active_border do Hyprland).
+  "effects/hypr-gradient/effect.toml",
+]
+
+# ==============================================================================
+# Geral / Autostart
+
+[general]
+mod_key = "Super"
+# Cheatsheet de atalhos: desligado no login, abre com Super + F1.
+show_cheatsheet = false
+autostart = [
+  # Cofre e autenticação. O polkit agora é o agente embutido do Noctalia
+  # (o hyprpolkitagent foi desinstalado).
+  "gnome-keyring-daemon --start --components=secrets,ssh",
+  # Shell (barra, launcher, notificações, wallpaper, lockscreen, idle).
+  # O hyprpaper e o hypridle foram substituídos pelo wallpaper e pelo idle
+  # do próprio Noctalia ([idle] em ~/.local/state/noctalia/settings.toml).
+  "noctalia",
+  # Gerenciador de Clipboard
+  "wl-paste --type text --watch cliphist store",
+  "wl-paste --type image --watch cliphist store",
+]
+# O que o Hyprland fazia no autostart e aqui não precisa:
+# - dbus-update-activation-environment / systemctl import-environment:
+#   o start-umbriel já publica o ambiente no systemd/D-Bus.
+# - hyprctl setcursor: ver [input.cursor].
+
+# ==============================================================================
+# Variáveis de ambiente
+# Umbriel controla XDG_CURRENT_DESKTOP, XDG_SESSION_DESKTOP e XDG_SESSION_TYPE
+# (não podem ser definidas aqui). Cursor e tema Qt também vêm de
+# ~/.config/environment.d/.
+
+[environment]
+# NVIDIA / Renderização Hardware
+# Se o Umbriel não iniciar (tela preta) neste notebook híbrido AMD + NVIDIA,
+# comente primeiro GBM_BACKEND e __GLX_VENDOR_LIBRARY_NAME.
+LIBVA_DRIVER_NAME = "nvidia"
+GBM_BACKEND = "nvidia-drm"
+__GLX_VENDOR_LIBRARY_NAME = "nvidia"
+NVD_BACKEND = "direct"
+
+# Forçar Wayland Nativo nos Toolkits & Apps
+ELECTRON_OZONE_PLATFORM_HINT = "auto"
+GDK_BACKEND = "wayland,x11,*"
+QT_QPA_PLATFORM = "wayland;xcb"
+MOZ_ENABLE_WAYLAND = "1"
+
+# Aparência
+QT_QPA_PLATFORMTHEME = "qt6ct"
+QT_STYLE_OVERRIDE = "kvantum"
+
+# ==============================================================================
+# Aparência (decoration / general do Hyprland)
+
+[appearance]
+border_width = 2      # general.border_size
+corner_radius = 5     # decoration.rounding
+drag_opacity = 1.0    # Hyprland não deixa a janela translúcida ao arrastar
+
+[appearance.blur]
+enabled = true
+# Hyprland xray = false: o blur enxerga as janelas atrás, não só o wallpaper.
+optimized = false
+passes = 3            # blur.passes
+radius = 8            # blur.size (escalas não são idênticas; ajuste a gosto)
+noise = 0.0117        # padrão do Hyprland
+contrast = 0.8916
+brightness = 0.8172
+saturation = 1.17     # aproximação de vibrancy = 0.1696
+
+# Sombra padrão do Hyprland: range 4, sem offset, cor #1a1a1aee.
+[appearance.shadow]
+enabled = true
+softness = 4
+offset_x = 0
+offset_y = 0
+
+[colors]
+# Painéis do próprio Umbriel (cheatsheet, avisos, overview) em Catppuccin Mocha.
+background = "#1E1E2EFF"
+text_primary = "#CDD6F4FF"
+text_muted = "#A6ADC8FF"
+accent_primary = "#CBA6F7FF"
+accent_secondary = "#F9E2AFFF"
+warning = "#FAB387FF"
+error = "#F38BA8FF"
+insert_hint = "#CBA6F780"
+backdrop = "#11111BFF"
+shadow = "#1A1A1AEE"
+
+[colors.border]
+# A janela focada usa o shader effects/hypr-gradient (gradiente
+# CB1C8D -> 460C68 a 45°). Esta cor só aparece se o shader falhar.
+focused = "#CB1C8DFF"
+unfocused = "#595959AA"   # general.col.inactive_border
+
+[colors.overview]
+badge = "#CBA6F7FF"
+
+[effects]
+border = "hypr-gradient"
+
+# ==============================================================================
+# Animações
+# Hyprland: speed 1 = 100 ms. O bezier "default" do Hyprland é 0,0.75,0.15,1.
+
+[animation]
+enabled = true
+
+[animation.beziers]
+myBezier = [0.05, 0.9, 0.1, 1.05]
+hyprDefault = [0.0, 0.75, 0.15, 1.0]
+
+# windows: speed 7, myBezier (estilo padrão do Hyprland = popin 0%)
+[animation.windows_in]
+curve = "myBezier"
+duration_ms = 700
+style = "popin"
+scale = 0.1
+
+# windowsOut: speed 7, default, popin 80%
+[animation.windows_out]
+curve = "hyprDefault"
+duration_ms = 700
+style = "popin"
+scale = 0.8
+
+# windowsMove herda de windows
+[animation.windows_move]
+curve = "myBezier"
+duration_ms = 700
+
+# border: speed 10, default
+[animation.border]
+curve = "hyprDefault"
+duration_ms = 1000
+
+# workspaces: speed 6, default
+[animation.workspaces]
+curve = "hyprDefault"
+duration_ms = 600
+
+# Scratchpad "chat" com cara de special workspace: ocupa a área toda e
+# escurece o fundo como o dim_special (0.2) do Hyprland.
+[animation.scratchpad]
+maximize = true
+dim = 0.2
+
+# ==============================================================================
+# Input
+
+[input.keyboard]
+layout = "us"
+variant = "intl"
+
+[input.mouse]
+sensitivity = 0.0
+
+[input.touchpad]
+natural_scroll = false
+
+[input.focus]
+follows_mouse = true   # follow_mouse = 1
+
+[input.cursor]
+theme = "Bibata-Modern-Ice"
+size = 24
+
+# ==============================================================================
+# Layout
+
+[layout]
+mode = "dwindle"
+gap = 10   # gaps_in 5 (= 10 entre janelas) e gaps_out 10
+
+[layout.dwindle]
+preserve_split = true
+# Padrão do Hyprland (force_split = 0): a nova janela abre do lado do cursor.
+new_toward_cursor = true
+
+# ==============================================================================
+# Scratchpad (special:chat do Hyprland)
+
+[[scratchpad]]
+name = "chat"
+
+# ==============================================================================
+# Window rules
+
+# Blur em todas as janelas translúcidas (decoration.blur do Hyprland).
+[[window_rule]]
+blur = true
+blur_popups = true
+
+# Cinny: abre escondido no scratchpad "chat" (special:chat silent).
+[[window_rule]]
+match.app_id = "^(cinny)$"
+default_scratchpad = "chat"
+
+# Noctalia Settings
+[[window_rule]]
+match.app_id = "^dev[.]noctalia[.]Noctalia$"
+default_floating = true
+default_floating_size_px = { width = 1080, height = 920 }
+
+# Seletor de compartilhamento de tela do portal do Umbriel
+[[window_rule]]
+match.app_id = "^dev[.]noctalia[.]UmbrielSharePicker$"
+default_floating = true
+default_floating_size_px = { width = 800, height = 600 }
+
+# OpenLogi action ring. Sem equivalente no Umbriel para: abrir na posição do
+# cursor (abre centralizado), stay_focused e no_anim por janela.
+[[window_rule]]
+match.app_id = "^(openlogi-action-ring.*)$"
+default_floating = true
+default_focused = true
+border_width = 0
+shadow = false
+blur = false
+border_effect = "off"
+
+# ==============================================================================
+# Layer rules (Noctalia)
+# Sem animação nas layers, como o no_anim do Hyprland: [animation.layers] já
+# vem desligado por padrão.
+
+[[layer_rule]]
+match.namespace = "^noctalia-(bar-.+|notification|dock|panel|attached-panel|osd|window-switcher|desktop-widget-.*)$"
+blur = true
+blur_ignore_alpha = 0.5
+blur_popups = true
+
+# ==============================================================================
+# Keybinds
+# Definir [keybinds] substitui todos os atalhos embutidos do Umbriel.
+# Mover/redimensionar com Super + botão esquerdo/direito é nativo (sem bind).
+# Os binds Super + Ctrl + 1/2 ficam em monitors-{home,work}.toml.
+
+[keybinds]
+# Noctalia
+"Mod+Space" = { action = "spawn:noctalia msg panel-toggle launcher", repeat = false }
+"Mod+S" = { action = "spawn:noctalia msg panel-toggle control-center", repeat = false }
+"Mod+Comma" = { action = "spawn:noctalia msg settings-toggle", repeat = false }
+"Mod+Tab" = { action = "spawn:noctalia msg window-switcher", repeat = false }
+"Mod+V" = { action = "spawn:noctalia msg panel-toggle clipboard", repeat = false }
+
+# Media keys (repetem ao segurar)
+"XF86AudioRaiseVolume" = "spawn:noctalia msg volume-up"
+"XF86AudioLowerVolume" = "spawn:noctalia msg volume-down"
+"XF86AudioMute" = { action = "spawn:noctalia msg volume-mute", repeat = false }
+"XF86MonBrightnessUp" = "spawn:noctalia msg brightness-up"
+"XF86MonBrightnessDown" = "spawn:noctalia msg brightness-down"
+
+# General Binds
+"Mod+T" = { action = "spawn:foot", repeat = false }
+"Mod+Q" = { action = "window-close", repeat = false }
+"Mod+E" = { action = "spawn:dolphin", repeat = false }
+"Mod+F" = { action = "window-toggle-floating", repeat = false }
+"Mod+O" = { action = "spawn:noctalia msg session lock", repeat = false }
+# Super + Y (pseudo) e Super + U (togglesplit) não têm equivalente no Umbriel.
+
+# fullscreen 1 (maximizar mantendo gaps e barra) / fullscreen 0
+"Mod+Z" = { action = "window-toggle-maximize", repeat = false }
+"Mod+Shift+Z" = { action = "window-toggle-fullscreen", repeat = false }
+
+"Mod+M" = { action = "spawn:~/.config/umbriel/bin/toggle-monitors.sh", repeat = false }
+
+# Mostrar/esconder o Cinny (scratchpad)
+"Mod+C" = "scratchpad-toggle:chat"
+
+# Screenshot -> Satty
+"Mod+P" = { action = "spawn:grim -g \"$(slurp)\" - | satty --filename - --early-exit --copy-command \"wl-copy\"", repeat = false }
+"Mod+Shift+P" = { action = "spawn:grim -g \"$(slurp)\" - | satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/satty-$(date +%Y%m%d-%H%M%S).png", repeat = false }
+"Mod+Ctrl+P" = { action = "spawn:~/.config/umbriel/bin/screenshot-window.sh", repeat = false }
+
+# O Umbriel recarrega sozinho ao salvar; isto força e avisa, como no Hyprland.
+"Mod+R" = { action = "spawn:umbriel msg config-reload && notify-send \"Umbriel\" \"Config reloaded\"", repeat = false }
+
+# Kill mode (clique numa janela para matá-la, Esc cancela)
+"Mod+Escape" = { action = "spawn:~/.config/umbriel/bin/kill-window.sh", repeat = false }
+
+# Foco com hjkl (passa para o outro monitor na borda, como no Hyprland)
+"Mod+H" = "window-focus-or-output-left"
+"Mod+L" = "window-focus-or-output-right"
+"Mod+K" = "window-focus-or-output-up"
+"Mod+J" = "window-focus-or-output-down"
+
+# Mover janela com Ctrl + hjkl
+"Mod+Ctrl+H" = "window-move-or-output-left"
+"Mod+Ctrl+L" = "window-move-or-output-right"
+"Mod+Ctrl+K" = "window-move-or-output-up"
+"Mod+Ctrl+J" = "window-move-or-output-down"
+
+# Workspaces. No Umbriel cada monitor tem os próprios workspaces (como o
+# plugin split-monitor-workspaces): Super + N vai ao workspace N do monitor focado.
+"Mod+1" = "workspace-switch:1"
+"Mod+2" = "workspace-switch:2"
+"Mod+3" = "workspace-switch:3"
+"Mod+4" = "workspace-switch:4"
+"Mod+5" = "workspace-switch:5"
+"Mod+6" = "workspace-switch:6"
+"Mod+7" = "workspace-switch:7"
+"Mod+8" = "workspace-switch:8"
+"Mod+9" = "workspace-switch:9"
+"Mod+0" = "workspace-switch:10"
+"Mod+Shift+1" = "window-move-to-workspace:1"
+"Mod+Shift+2" = "window-move-to-workspace:2"
+"Mod+Shift+3" = "window-move-to-workspace:3"
+"Mod+Shift+4" = "window-move-to-workspace:4"
+"Mod+Shift+5" = "window-move-to-workspace:5"
+"Mod+Shift+6" = "window-move-to-workspace:6"
+"Mod+Shift+7" = "window-move-to-workspace:7"
+"Mod+Shift+8" = "window-move-to-workspace:8"
+"Mod+Shift+9" = "window-move-to-workspace:9"
+"Mod+Shift+0" = "window-move-to-workspace:10"
+
+# Mover o workspace atual para o monitor da esquerda/direita
+"Mod+Ctrl+Left" = "workspace-move-to-output-left"
+"Mod+Ctrl+Right" = "workspace-move-to-output-right"
+
+# Percorrer workspaces (e+1 / e-1)
+"Alt+Tab" = "workspace-next"
+"Alt+Shift+Tab" = "workspace-previous"
+
+# Extras do Umbriel (teclas livres no Hyprland)
+"Mod+G" = { action = "overview-toggle", repeat = false }
+"Mod+F1" = { action = "cheatsheet-toggle", repeat = false }
+# Saída de emergência quando um jogo/remote desktop captura os atalhos.
+"Mod+Shift+Escape" = { action = "shortcuts-inhibit-toggle", allow_when_inhibited = true, repeat = false }
