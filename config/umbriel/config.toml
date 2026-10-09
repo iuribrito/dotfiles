@@ -288,9 +288,10 @@ blur_popups = true
 # Kill mode (clique numa janela para matá-la, Esc cancela)
 "Mod+Escape" = { action = "spawn:~/.config/umbriel/bin/kill-window.sh", repeat = false }
 
-# Foco com hjkl (passa para o outro monitor na borda, como no Hyprland)
-"Mod+H" = "window-focus-or-output-left"
-"Mod+L" = "window-focus-or-output-right"
+# Foco com hjkl. H/L ficam no monitor atual (param na última coluna);
+# K/J passam para o monitor de cima/baixo na borda.
+"Mod+H" = "window-focus-left"
+"Mod+L" = "window-focus-right"
 "Mod+K" = "window-focus-or-output-up"
 "Mod+J" = "window-focus-or-output-down"
 
@@ -339,10 +340,11 @@ blur_popups = true
 "Mod+BracketLeft" = "window-consume-or-expel-left"
 "Mod+BracketRight" = "window-consume-or-expel-right"
 "Mod+W" = { action = "column-toggle-tabbed", repeat = false }
-# Botões laterais do mouse com Super: coluna da esquerda/direita (sem o Super
-# eles continuam sendo voltar/avançar no navegador).
-"Mod+MouseBack" = "window-focus-or-output-left"
-"Mod+MouseForward" = "window-focus-or-output-right"
+# Botões laterais do mouse com Super: coluna da esquerda/direita no monitor
+# atual, como Super + H/L (sem o Super eles continuam sendo voltar/avançar no
+# navegador).
+"Mod+MouseBack" = "window-focus-left"
+"Mod+MouseForward" = "window-focus-right"
 
 # Extras do Umbriel (teclas livres no Hyprland)
 "Mod+G" = { action = "overview-toggle", repeat = false }
